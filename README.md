@@ -17,10 +17,14 @@ After this, just run the following code
 git clone https://github.com/PauloE314/cch-backend; cd cch-backend; yarn
 ```
 
-Now, create a `.env` file on the project root and put the `.env.example` file content inside it.
+Now, create a `.env` file on the project root and put the `.env.example` file content inside it. Also, pass the needed information to this `.env` file.
 
 ## **HTTP Routes**
 
 ## **TCP messages**
 
 ## **Game flow**
+
+## **Contributions**
+
+Read the [contribution guide](./docs/CONTRIBUTING.md) for more information.

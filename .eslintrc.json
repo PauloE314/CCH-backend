@@ -25,7 +25,12 @@
     "import/first": "off",
     "import/no-extraneous-dependencies": "off",
     "global-require": "off",
-    "class-methods-use-this": "off"
+    "class-methods-use-this": "off",
+    "lines-between-class-members": [
+      "error",
+      "always",
+      { "exceptAfterSingleLine": true }
+    ]
   },
   "settings": {
     "import/resolver": {

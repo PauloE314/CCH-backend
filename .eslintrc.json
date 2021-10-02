@@ -1,7 +1,8 @@
 {
   "env": {
     "es2021": true,
-    "node": true
+    "node": true,
+    "jest": true
   },
   "extends": ["airbnb-base", "plugin:prettier/recommended"],
   "parser": "@typescript-eslint/parser",
@@ -24,13 +25,16 @@
     ],
     "import/first": "off",
     "import/no-extraneous-dependencies": "off",
+    "import/prefer-default-export": "off",
     "global-require": "off",
     "class-methods-use-this": "off",
     "lines-between-class-members": [
       "error",
       "always",
       { "exceptAfterSingleLine": true }
-    ]
+    ],
+    "no-unused-vars": "off", // Prevents callback params to be considered variables
+    "@typescript-eslint/no-unused-vars": ["error"]
   },
   "settings": {
     "import/resolver": {

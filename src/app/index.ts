@@ -4,7 +4,7 @@ import { Server as SocketServer } from 'socket.io';
 import cors from 'cors';
 
 import routes from './routes';
-import setupWebSockets from '../socket';
+import setupWebSockets from '~/socket';
 
 export default class Application {
   express: Express;

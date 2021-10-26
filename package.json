@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "test": "jest --verbose",
-    "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts"
+    "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
+    "db:migrate": "typeorm migration:run"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",

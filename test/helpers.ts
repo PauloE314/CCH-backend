@@ -1,7 +1,7 @@
 import { Server } from 'socket.io';
 import connect from 'socket.io-client';
 
-import Application from '../src/app';
+import Application from '~/app';
 
 const port = 3001;
 

@@ -2,8 +2,9 @@ import express, { Express, json as jsonParser } from 'express';
 import { createServer, Server as HTTPServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
 import cors from 'cors';
+import 'reflect-metadata';
 
-import routes from './routes';
+import routes from './web/routes';
 import setupWebSockets from '~/socket';
 
 export default class Application {

@@ -1,6 +1,6 @@
 if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 
-import Application from './app';
+import Application from '~/app';
 
 const application = new Application();
 

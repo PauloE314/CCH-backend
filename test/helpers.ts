@@ -16,8 +16,8 @@ export function startWebSocketsTestServer(_application?: Application) {
 }
 
 type TestSocketCallBack = (
-  socket: Socket,
   io: Server,
+  socket: Socket,
   resolve: () => any
 ) => any;
 
@@ -32,7 +32,7 @@ export function testSocket(message: string, cb: TestSocketCallBack) {
       };
 
       try {
-        const resp = cb(client, io, end);
+        const resp = cb(io, client, end);
         if (resp instanceof Promise) resp.catch(end);
       } catch (error) {
         end(error);

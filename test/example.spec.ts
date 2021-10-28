@@ -6,7 +6,7 @@ import { testSocket } from './helpers';
 
 describe('WS', () => {
   describe('when a new client connects to the socket', () => {
-    testSocket('Sends "message" message', (client, io, done) => {
+    testSocket('Sends "message" message', (io, client, done) => {
       io.on('connect', socket => socket.emit('message', 'works'));
       client.on('message', arg => {
         expect(arg).toBe('works');

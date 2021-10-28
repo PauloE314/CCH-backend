@@ -17,4 +17,10 @@ export default <ISocketStorage>class InMemorySocketStorage {
   static get(key: allowedStorageKeys, objectId: String) {
     return dataSet[key].find(({ id }) => id === objectId);
   }
+
+  static clearAll() {
+    Object.keys(dataSet).forEach(key => {
+      dataSet[<allowedStorageKeys>key] = [];
+    });
+  }
 };

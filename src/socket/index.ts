@@ -1,7 +1,10 @@
 import { Server as SocketServer } from 'socket.io';
 
-import connect from '~/socket/listeners/connect';
+import newPlayer from '~/socket/listeners/newPlayer';
+import SocketStorage from './storage/inMemoryStorage';
 
 export default function setupWebSockets(io: SocketServer) {
-  connect(io);
+  io.on('connection', socket => {
+    socket.on('new-player', data => newPlayer(io, socket, SocketStorage, data));
+  });
 }

@@ -31,3 +31,7 @@ export function testSocket(message: string, cb: TestSocketCallBack) {
     }
   });
 }
+
+export function delay(n: number) {
+  return new Promise<void>(resolve => setTimeout(resolve, n));
+}

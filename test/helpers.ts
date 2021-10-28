@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import connect from 'socket.io-client';
+import connect, { Socket } from 'socket.io-client';
 
 import Application from '~/app';
 
@@ -15,6 +15,19 @@ export function startWebSocketsTestServer(_application?: Application) {
   });
 }
 
-export function startWebSocketsTestClient() {
-  return connect(`http://localhost:${port}`);
+type TestSocketCallBack = (socket: Socket, resolve: () => any) => any;
+
+export function testSocket(message: string, cb: TestSocketCallBack) {
+  it(message, done => {
+    const client = connect(`http://localhost:${port}`);
+    try {
+      cb(client, () => {
+        client.close();
+        done();
+      });
+    } catch (error) {
+      client.close();
+      done(error);
+    }
+  });
 }

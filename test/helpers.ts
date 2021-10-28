@@ -15,22 +15,29 @@ export function startWebSocketsTestServer(_application?: Application) {
   });
 }
 
-type TestSocketCallBack = (socket: Socket, resolve: () => any) => any;
+type TestSocketCallBack = (
+  socket: Socket,
+  io: Server,
+  resolve: () => any
+) => any;
 
 export function testSocket(message: string, cb: TestSocketCallBack) {
   it(message, done => {
-    const client = connect(`http://localhost:${port}`);
-    const end = (err?: any) => {
-      client.close();
-      done(err);
-    };
+    startWebSocketsTestServer().then(io => {
+      const client = connect(`http://localhost:${port}`);
+      const end = (err?: any) => {
+        client.close();
+        io.close();
+        done(err);
+      };
 
-    try {
-      const resp = cb(client, end);
-      if (resp instanceof Promise) resp.catch(end);
-    } catch (error) {
-      end(error);
-    }
+      try {
+        const resp = cb(client, io, end);
+        if (resp instanceof Promise) resp.catch(end);
+      } catch (error) {
+        end(error);
+      }
+    });
   });
 }
 

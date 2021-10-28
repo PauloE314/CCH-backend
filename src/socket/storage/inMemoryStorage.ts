@@ -1,20 +1,20 @@
-type allowedKeys = 'players';
+import { allowedStorageKeys, ISocketStorage } from './ISocketStorage';
 
-const dataSet: { [key: string]: any[] } = {
+const dataSet: { [key in allowedStorageKeys]: any[] } = {
   players: [],
 };
 
-export default class InMemorySocketStorage {
-  static store(key: allowedKeys, data: any) {
+export default <ISocketStorage>class InMemorySocketStorage {
+  static store(key: allowedStorageKeys, data: any) {
     if (dataSet[key]) dataSet[key].push(data);
     else dataSet[key] = [data];
   }
 
-  static getAll(key: allowedKeys) {
+  static getAll(key: allowedStorageKeys) {
     return dataSet[key];
   }
 
-  static get(key: allowedKeys, objectId: String) {
+  static get(key: allowedStorageKeys, objectId: String) {
     return dataSet[key].find(({ id }) => id === objectId);
   }
-}
+};

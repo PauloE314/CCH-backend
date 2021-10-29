@@ -4,10 +4,9 @@ import Player from '~/socket/game/Player';
 
 export default function newPlayer(
   _io: Server,
-  _socket: Socket,
+  socket: Socket,
   storage: ISocketStorage,
   { username }: any
 ) {
-  const player = new Player(username);
-  storage.store('players', player);
+  storage.store('players', new Player(socket.id, username));
 }

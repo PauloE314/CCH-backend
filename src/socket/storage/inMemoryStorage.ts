@@ -1,7 +1,8 @@
+import Player from '../game/Player';
 import { allowedStorageKeys, ISocketStorage } from './ISocketStorage';
 
-const dataSet: { [key in allowedStorageKeys]: any[] } = {
-  players: [],
+const dataSet = {
+  players: <Player[]>[],
 };
 
 export default <ISocketStorage>class InMemorySocketStorage {
@@ -18,9 +19,14 @@ export default <ISocketStorage>class InMemorySocketStorage {
     return dataSet[key].find(({ id }) => id === objectId);
   }
 
+  static remove(key: allowedStorageKeys, objectId: String) {
+    return dataSet[key].filter(({ id }) => id === objectId);
+  }
+
   static clearAll() {
-    Object.keys(dataSet).forEach(key => {
-      dataSet[<allowedStorageKeys>key] = [];
+    const keys = <allowedStorageKeys[]>Object.keys(dataSet);
+    keys.forEach(key => {
+      dataSet[key] = [];
     });
   }
 };

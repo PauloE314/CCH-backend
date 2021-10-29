@@ -5,4 +5,5 @@ export interface ISocketStorage {
   getAll(key: allowedStorageKeys): any[];
   get(key: allowedStorageKeys, objectIdentifier: String): any;
   clearAll(): void;
+  remove(key: allowedStorageKeys, id: String): void;
 }

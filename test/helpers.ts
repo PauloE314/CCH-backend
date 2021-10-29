@@ -1,17 +1,19 @@
+import http from 'http';
 import { Server } from 'socket.io';
 import connect, { Socket } from 'socket.io-client';
+import setupWebSockets from '~/socket';
 
-import Application from '~/app';
+export function startWebSocketsTestServer() {
+  return new Promise<[Server, number]>(resolve => {
+    const httpServer = http.createServer();
+    const io = new Server(httpServer);
+    setupWebSockets(io);
 
-const port = 3001;
-
-export function startWebSocketsTestServer(_application?: Application) {
-  return new Promise<Server>(resolve => {
-    const application = _application || new Application();
-    const { io } = application;
-
-    application.boot();
-    application.run(port, () => resolve(io));
+    httpServer
+      .listen(0, () => resolve([io, (<any>httpServer.address()).port]))
+      .on('error', () => {
+        throw new Error();
+      });
   });
 }
 
@@ -23,7 +25,7 @@ type TestSocketCallBack = (
 
 export function testSocket(message: string, cb: TestSocketCallBack) {
   it(message, done => {
-    startWebSocketsTestServer().then(io => {
+    startWebSocketsTestServer().then(([io, port]) => {
       const client = connect(`http://localhost:${port}`);
       const end = (err?: any) => {
         client.close();

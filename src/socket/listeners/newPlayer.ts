@@ -1,6 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import Player from '~/socket/game/Player';
+import errorCodes from '~/config/errorCodes';
 
 export default function newPlayer(
   _io: Server,
@@ -8,5 +9,6 @@ export default function newPlayer(
   storage: ISocketStorage,
   { username }: any
 ) {
-  storage.store('players', new Player(socket.id, username));
+  if (!username) socket.emit('error', errorCodes.invalidData);
+  else storage.store('players', new Player(socket.id, username));
 }

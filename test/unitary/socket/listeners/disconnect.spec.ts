@@ -1,5 +1,4 @@
 import { Server, Socket } from 'socket.io';
-import { mocked } from 'ts-jest/utils';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import disconnect from '~/socket/listeners/disconnect';
 
@@ -18,9 +17,6 @@ describe('disconnect', () => {
 
   it('removes disconnecting player from storage', () => {
     disconnect(ioMock, socketMock, storageMock);
-    expect(mocked(storageMock).remove).toHaveBeenCalledWith(
-      'players',
-      socketMock.id
-    );
+    expect(storageMock.remove).toHaveBeenCalledWith('players', socketMock.id);
   });
 });

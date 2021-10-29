@@ -24,7 +24,7 @@ describe('newPlayer', () => {
   describe('when is passed a username', () => {
     it('saves the new player in the player storage', () => {
       newPlayer(ioMock, socketMock, storageMock, data);
-      expect(mocked(storageMock).store).toHaveBeenCalledWith(
+      expect(storageMock.store).toHaveBeenCalledWith(
         'players',
         expect.any(Player)
       );
@@ -43,7 +43,7 @@ describe('newPlayer', () => {
   describe('when is not passed a username', () => {
     it('emits an invalidData error', () => {
       newPlayer(ioMock, socketMock, storageMock, {});
-      expect(mocked(socketMock).emit).toHaveBeenCalledWith(
+      expect(socketMock.emit).toHaveBeenCalledWith(
         'error',
         errorCodes.invalidData
       );

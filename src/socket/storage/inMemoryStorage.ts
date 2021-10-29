@@ -20,7 +20,7 @@ export default <ISocketStorage>class InMemorySocketStorage {
   }
 
   static remove(key: allowedStorageKeys, objectId: String) {
-    return dataSet[key].filter(({ id }) => id === objectId);
+    dataSet[key] = dataSet[key].filter(({ id }) => id !== objectId);
   }
 
   static clearAll() {

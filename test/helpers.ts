@@ -2,12 +2,13 @@ import http from 'http';
 import { Server } from 'socket.io';
 import connect, { Socket } from 'socket.io-client';
 import setupWebSockets from '~/socket';
+import inMemoryStorage from '~/socket/storage/inMemoryStorage';
 
 export function startWebSocketsTestServer() {
   return new Promise<[Server, number]>(resolve => {
     const httpServer = http.createServer();
     const io = new Server(httpServer);
-    setupWebSockets(io);
+    setupWebSockets(io, inMemoryStorage);
 
     httpServer
       .listen(0, () => resolve([io, (<any>httpServer.address()).port]))

@@ -3,6 +3,7 @@ import { Server as SocketServer } from 'socket.io';
 import newPlayer from '~/socket/listeners/newPlayer';
 import disconnect from '~/socket/listeners/disconnect';
 import { ISocketStorage } from './storage/ISocketStorage';
+import newParty from './listeners/newParty';
 
 export default function setupWebSockets(
   io: SocketServer,
@@ -13,5 +14,6 @@ export default function setupWebSockets(
   io.on('connection', socket => {
     socket.on('new-player', data => newPlayer(io, socket, storage, data));
     socket.on('disconnect', () => disconnect(io, socket, storage));
+    socket.on('new-party', () => newParty(io, socket, storage));
   });
 }

@@ -1,4 +1,4 @@
-export type allowedStorageKeys = 'players';
+export type allowedStorageKeys = 'players' | 'parties';
 
 export interface ISocketStorage {
   store(key: allowedStorageKeys, data: any): void;

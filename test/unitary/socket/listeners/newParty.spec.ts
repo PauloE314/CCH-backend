@@ -1,10 +1,11 @@
 import { Server, Socket } from 'socket.io';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
-import newRoom from '~/socket/listeners/newRoom';
+import newParty from '~/socket/listeners/newParty';
 import Player from '~/socket/game/Player';
 import errorCodes from '~/config/errorCodes';
+import Party from '~/socket/game/Party';
 
-describe('newRoom', () => {
+describe('newParty', () => {
   let ioMock: Server;
   let socketMock: Socket;
   let storageMock: ISocketStorage;
@@ -19,25 +20,34 @@ describe('newRoom', () => {
     playerMock = <Player>{};
 
     storageMock.get = jest.fn(() => playerMock);
+    storageMock.store = jest.fn();
     socketMock.emit = jest.fn();
     socketMock.join = jest.fn();
   });
 
   describe('when player is not in another room', () => {
     it('loads player', () => {
-      newRoom(ioMock, socketMock, storageMock);
+      newParty(ioMock, socketMock, storageMock);
       expect(storageMock.get).toHaveBeenCalledWith('players', socketMock.id);
     });
 
+    it('stores new game party', () => {
+      newParty(ioMock, socketMock, storageMock);
+      expect(storageMock.store).toHaveBeenCalledWith(
+        'parties',
+        expect.any(Party)
+      );
+    });
+
     it('puts socket in room', () => {
-      newRoom(ioMock, socketMock, storageMock);
+      newParty(ioMock, socketMock, storageMock);
       expect(socketMock.join).toHaveBeenCalledWith(expect.any(String));
     });
 
     it('sends back room id', () => {
-      newRoom(ioMock, socketMock, storageMock);
+      newParty(ioMock, socketMock, storageMock);
       expect(socketMock.emit).toHaveBeenCalledWith(
-        'room-id',
+        'party-id',
         expect.any(String)
       );
     });
@@ -45,9 +55,9 @@ describe('newRoom', () => {
 
   describe('when player already is in another room', () => {
     it('emits and inRoom error', () => {
-      playerMock.roomId = '123';
-      newRoom(ioMock, socketMock, storageMock);
-      expect(socketMock.emit).toHaveBeenCalledWith('error', errorCodes.inRoom);
+      playerMock.partyId = '123';
+      newParty(ioMock, socketMock, storageMock);
+      expect(socketMock.emit).toHaveBeenCalledWith('error', errorCodes.inParty);
     });
   });
 });

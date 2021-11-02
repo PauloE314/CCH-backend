@@ -1,4 +1,5 @@
 export default {
   invalidData: 1,
-  inRoom: 2,
+  inParty: 2,
+  inexistentParty: 3,
 };

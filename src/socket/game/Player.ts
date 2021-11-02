@@ -1,11 +1,11 @@
 export default class Player {
   public id: string;
   public username: string;
-  public roomId: string;
+  public partyId: string;
 
   constructor(id: string, username: string) {
     this.id = id;
     this.username = username;
-    this.roomId = '';
+    this.partyId = '';
   }
 }

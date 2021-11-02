@@ -1,8 +1,10 @@
+import Party from '../game/Party';
 import Player from '../game/Player';
 import { allowedStorageKeys, ISocketStorage } from './ISocketStorage';
 
 const dataSet = {
   players: <Player[]>[],
+  parties: <Party[]>[],
 };
 
 export default <ISocketStorage>class InMemorySocketStorage {
@@ -20,7 +22,7 @@ export default <ISocketStorage>class InMemorySocketStorage {
   }
 
   static remove(key: allowedStorageKeys, objectId: String) {
-    dataSet[key] = dataSet[key].filter(({ id }) => id !== objectId);
+    dataSet[key] = <any[]>dataSet[key].filter(({ id }) => id !== objectId);
   }
 
   static clearAll() {

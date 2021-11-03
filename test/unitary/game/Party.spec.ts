@@ -38,12 +38,14 @@ describe('Party', () => {
     });
 
     it('returns correct players', () => {
-      storageMock.getAll = jest.fn(() => [
-        { partyId: party.id },
-        { partyId: party.id },
-        { partyId: '123' },
-        { partyId: '123' },
-      ]);
+      storageMock.getAll = <any>(
+        jest.fn(() => [
+          { partyId: party.id },
+          { partyId: party.id },
+          { partyId: '123' },
+          { partyId: '123' },
+        ])
+      );
 
       const result = party.players(storageMock);
       expect(result).toEqual([{ partyId: party.id }, { partyId: party.id }]);

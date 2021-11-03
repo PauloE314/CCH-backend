@@ -19,8 +19,8 @@ describe('joinParty', () => {
     socketMock.emit = jest.fn();
 
     storageMock = <ISocketStorage>{};
-    storageMock.get = jest.fn(type =>
-      type === 'parties' ? partyMock : playerMock
+    storageMock.get = <any>(
+      jest.fn(type => (type === 'parties' ? partyMock : playerMock))
     );
 
     partyMock = <Party>{ id: '123' };
@@ -51,8 +51,8 @@ describe('joinParty', () => {
 
     describe('and the party does not exist', () => {
       it('emits inexistentParty error', () => {
-        storageMock.get = jest.fn(key =>
-          key === 'players' ? playerMock : undefined
+        storageMock.get = <any>(
+          jest.fn(key => (key === 'players' ? playerMock : undefined))
         );
 
         joinParty(ioMock, socketMock, storageMock, data);

@@ -18,11 +18,11 @@ export default <ISocketStorage>class InMemorySocketStorage {
   }
 
   static get(key: allowedStorageKeys, objectId: String) {
-    return dataSet[key].find(({ id }) => id === objectId);
+    return (<any[]>dataSet[key]).find(({ id }) => id === objectId);
   }
 
   static remove(key: allowedStorageKeys, objectId: String) {
-    dataSet[key] = <any[]>dataSet[key].filter(({ id }) => id !== objectId);
+    dataSet[key] = (<any[]>dataSet[key]).filter(({ id }) => id !== objectId);
   }
 
   static clearAll() {

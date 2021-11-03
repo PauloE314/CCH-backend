@@ -19,7 +19,7 @@ describe('newParty', () => {
     storageMock = <ISocketStorage>{};
     playerMock = <Player>{};
 
-    storageMock.get = jest.fn(() => playerMock);
+    storageMock.get = <any>jest.fn(() => playerMock);
     storageMock.store = jest.fn();
     socketMock.emit = jest.fn();
     socketMock.join = jest.fn();

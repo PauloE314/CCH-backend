@@ -26,7 +26,12 @@ type TTestSocketCallBack = (args: {
   done: () => any;
 }) => any;
 
-export function testSocket(message: string, cb: TTestSocketCallBack) {
+export function testSocket(message: string, cb?: TTestSocketCallBack) {
+  if (!cb) {
+    it.todo(message);
+    return;
+  }
+
   it(message, done => {
     startWebSocketsTestServer().then(([io, port]) => {
       const clients: Socket[] = [];

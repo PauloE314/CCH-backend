@@ -6,16 +6,15 @@ import Player from '~/socket/game/Player';
 import errorCodes from '~/config/errorCodes';
 
 describe('newPlayer', () => {
-  let ioMock: Server;
+  const ioMock = <Server>{};
+  const data = { username: 'Player' };
+
   let socketMock: Socket;
   let storageMock: ISocketStorage;
-  let data: any;
 
   beforeEach(() => {
-    ioMock = <Server>{};
     socketMock = <any>{ emit: jest.fn() };
     storageMock = <any>{ store: jest.fn() };
-    data = { username: 'Player' };
   });
 
   describe('when is passed a username', () => {

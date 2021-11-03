@@ -6,27 +6,29 @@ import Player from '~/socket/game/Player';
 import Party from '~/socket/game/Party';
 
 describe('disconnect', () => {
-  let ioMock: Server;
+  const ioMock = <Server>{};
+  const playerMock = <Player>{ id: 'abc', partyId: '123' };
+
   let socketMock: Socket;
   let storageMock: ISocketStorage;
-  let playerMock: Player;
   let partyMock: Party;
 
   beforeEach(() => {
-    ioMock = <Server>{};
-    socketMock = <any>{ id: '123456789', emit: jest.fn() };
+    socketMock = <any>{
+      id: '123456789',
+      emit: jest.fn(),
+    };
+
     storageMock = <any>{
       remove: jest.fn(),
       get: jest.fn(key => (key === 'players' ? playerMock : partyMock)),
     };
 
     partyMock = <any>{
-      id: '123',
+      id: playerMock.id,
       players: jest.fn(() => [playerMock, { id: 'def' }]),
       sendToAll: jest.fn(),
     };
-
-    playerMock = <any>{ id: 'abc', partyId: partyMock.id };
   });
 
   it('removes disconnecting player from storage', () => {

@@ -6,13 +6,13 @@ import errorCodes from '~/config/errorCodes';
 import Party from '~/socket/game/Party';
 
 describe('newParty', () => {
-  let ioMock: Server;
+  const ioMock = <Server>{};
+
+  let playerMock: Player;
   let socketMock: Socket;
   let storageMock: ISocketStorage;
-  let playerMock: Player;
 
   beforeEach(() => {
-    ioMock = <any>{};
     playerMock = <any>{};
 
     socketMock = <any>{

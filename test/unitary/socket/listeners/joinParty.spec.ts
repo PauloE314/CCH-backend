@@ -6,17 +6,16 @@ import joinParty from '~/socket/listeners/joinParty';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 
 describe('joinParty', () => {
-  let ioMock: Server;
+  const ioMock = <Server>{};
+  const data = { partyId: '123' };
+
+  let playerMock: Player;
   let socketMock: Socket;
   let storageMock: ISocketStorage;
   let partyMock: Party;
-  let playerMock: Player;
-  let data: { partyId: string };
 
   beforeEach(() => {
-    ioMock = <any>{};
     playerMock = <any>{};
-
     storageMock = <any>{
       get: jest.fn(type => (type === 'parties' ? partyMock : playerMock)),
     };
@@ -27,12 +26,10 @@ describe('joinParty', () => {
     };
 
     partyMock = <any>{
-      id: '123',
+      id: data.partyId,
       players: jest.fn(() => []),
       sendToAll: jest.fn(),
     };
-
-    data = { partyId: partyMock.id };
   });
 
   describe('when client is not in another party', () => {

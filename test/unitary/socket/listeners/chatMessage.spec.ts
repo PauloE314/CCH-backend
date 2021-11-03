@@ -6,23 +6,21 @@ import chatMessage from '~/socket/listeners/chatMessage';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 
 describe('chatMessage', () => {
-  let ioMock: Server;
+  const ioMock = <Server>{};
+  const data = { message: 'Hello World!' };
+
   let socketMock: Socket;
   let storageMock: ISocketStorage;
   let playerMock: Player;
   let partyMock: Party;
-  let data: { message: string };
 
   beforeEach(() => {
-    ioMock = <any>{};
     socketMock = <any>{ emit: jest.fn() };
     partyMock = <any>{ id: '123', sendToAllExcept: jest.fn() };
     playerMock = <any>{ partyId: partyMock.id };
     storageMock = <any>{
       get: jest.fn(key => (key === 'players' ? playerMock : partyMock)),
     };
-
-    data = { message: 'Hello World!' };
   });
 
   describe('when player is in party', () => {

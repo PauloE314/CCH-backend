@@ -6,12 +6,15 @@ import { testSocket } from './helpers';
 
 describe('WS', () => {
   describe('when a new client connects to the socket', () => {
-    testSocket('Sends "message" message', (io, client, done) => {
-      io.on('connect', socket => socket.emit('message', 'works'));
-      client.on('message', arg => {
-        expect(arg).toBe('works');
-        done(); // Dont't forget to use the 'done' function to end the test
-      });
-    });
+    testSocket(
+      "Sends 'foo' message with content 'bar'",
+      ({ io, client, done }) => {
+        io.on('connect', socket => socket.emit('message', 'works'));
+        client.on('message', arg => {
+          expect(arg).toBe('works');
+          done(); // Dont't forget to use the 'done' function to end the test
+        });
+      }
+    );
   });
 });

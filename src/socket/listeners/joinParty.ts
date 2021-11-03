@@ -8,12 +8,11 @@ const joinParty: TListener = (io, socket, storage, { partyId }) => {
   if (!player) return;
 
   if (!player.partyId && party) {
-    const partyPlayers = party.players(storage);
-
+    player.partyId = party.id;
     socket.join(party.id);
     socket.emit('party-id', party.id);
-    player.partyId = party.id;
-    party.sendToAll(io, 'player-join', partyPlayers);
+
+    party.sendToAll(io, 'player-join', party.players(storage));
   } else {
     const errorCode = !party ? errorCodes.inexistentParty : errorCodes.inParty;
     socket.emit('error', errorCode);

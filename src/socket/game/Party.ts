@@ -13,7 +13,7 @@ export default class Party {
   }
 
   sendToAll(io: Server, eventName: string, content?: any) {
-    io.of(this.id).emit(eventName, content);
+    io.to(this.id).emit(eventName, content);
   }
 
   sendToAllExcept(socket: Socket, eventName: string, content?: any) {

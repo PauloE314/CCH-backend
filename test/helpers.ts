@@ -3,6 +3,7 @@ import { Server } from 'socket.io';
 import connect, { Socket } from 'socket.io-client';
 import setupWebSockets from '~/socket';
 import inMemoryStorage from '~/socket/storage/inMemoryStorage';
+import { delay } from '~/utils';
 
 export function startWebSocketsTestServer() {
   return new Promise<[Server, number]>(resolve => {
@@ -18,28 +19,43 @@ export function startWebSocketsTestServer() {
   });
 }
 
-type TestSocketCallBack = (
-  io: Server,
-  socket: Socket,
-  resolve: () => any
-) => any;
+type TTestSocketCallBack = (args: {
+  io: Server;
+  client: Socket;
+  clientFactory: () => Socket;
+  done: () => any;
+}) => any;
 
-export function testSocket(message: string, cb: TestSocketCallBack) {
+export function testSocket(message: string, cb: TTestSocketCallBack) {
   it(message, done => {
     startWebSocketsTestServer().then(([io, port]) => {
-      const client = connect(`http://localhost:${port}`);
+      const clients: Socket[] = [];
+
+      const clientFactory = () => {
+        const newClient = connect(`http://localhost:${port}`);
+        clients.push(newClient);
+        return newClient;
+      };
+
       const end = (err?: any) => {
-        client.close();
+        clients.forEach(client => client.close());
         io.close();
         done(err);
       };
 
+      const client = clientFactory();
+
       try {
-        const resp = cb(io, client, end);
+        const resp = cb({ io, client, clientFactory, done: end });
         if (resp instanceof Promise) resp.catch(end);
       } catch (error) {
         end(error);
       }
     });
   });
+}
+
+export async function act(cb: () => any, time = 50) {
+  cb();
+  await delay(time);
 }

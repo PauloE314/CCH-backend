@@ -17,14 +17,14 @@ describe('Party', () => {
   });
 
   describe('#sendToAll', () => {
-    it('calls Server#of and Server#emit methods', () => {
+    it('calls Server#to and Server#emit methods', () => {
       const ioMock: Server = <any>{
-        of: jest.fn(() => ioMock),
+        to: jest.fn(() => ioMock),
         emit: jest.fn(),
       };
 
       party.sendToAll(ioMock, 'event', 'any content');
-      expect(ioMock.of).toHaveBeenCalledWith(party.id);
+      expect(ioMock.to).toHaveBeenCalledWith(party.id);
       expect(ioMock.emit).toHaveBeenCalledWith('event', 'any content');
     });
   });

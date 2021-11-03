@@ -12,27 +12,29 @@ describe('newParty', () => {
   let playerMock: Player;
 
   beforeEach(() => {
-    ioMock = <Server>{};
-    socketMock = <Socket>{
-      id: '123456',
-    };
-    storageMock = <ISocketStorage>{};
-    playerMock = <Player>{};
+    ioMock = <any>{};
+    playerMock = <any>{};
 
-    storageMock.get = <any>jest.fn(() => playerMock);
-    storageMock.store = jest.fn();
-    socketMock.emit = jest.fn();
-    socketMock.join = jest.fn();
+    socketMock = <any>{
+      id: '123456',
+      emit: jest.fn(),
+      join: jest.fn(),
+    };
+
+    storageMock = <any>{
+      get: jest.fn(() => playerMock),
+      store: jest.fn(),
+    };
   });
 
   describe('when player is not in another room', () => {
     it('loads player', () => {
-      newParty(ioMock, socketMock, storageMock);
+      newParty(ioMock, socketMock, storageMock, {});
       expect(storageMock.get).toHaveBeenCalledWith('players', socketMock.id);
     });
 
     it('stores new game party', () => {
-      newParty(ioMock, socketMock, storageMock);
+      newParty(ioMock, socketMock, storageMock, {});
       expect(storageMock.store).toHaveBeenCalledWith(
         'parties',
         expect.any(Party)
@@ -40,12 +42,12 @@ describe('newParty', () => {
     });
 
     it('puts socket in room', () => {
-      newParty(ioMock, socketMock, storageMock);
+      newParty(ioMock, socketMock, storageMock, {});
       expect(socketMock.join).toHaveBeenCalledWith(expect.any(String));
     });
 
     it('sends back room id', () => {
-      newParty(ioMock, socketMock, storageMock);
+      newParty(ioMock, socketMock, storageMock, {});
       expect(socketMock.emit).toHaveBeenCalledWith(
         'party-id',
         expect.any(String)
@@ -56,7 +58,7 @@ describe('newParty', () => {
   describe('when player already is in another room', () => {
     it('emits and inRoom error', () => {
       playerMock.partyId = '123';
-      newParty(ioMock, socketMock, storageMock);
+      newParty(ioMock, socketMock, storageMock, {});
       expect(socketMock.emit).toHaveBeenCalledWith('error', errorCodes.inParty);
     });
   });

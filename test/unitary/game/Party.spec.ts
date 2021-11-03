@@ -3,24 +3,11 @@ import Party from '~/socket/game/Party';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 
 describe('Party', () => {
-  let ioMock: Server;
-  let socketMock: Socket;
   let storageMock: ISocketStorage;
   let party: Party;
 
   beforeEach(() => {
-    ioMock = <Server>{};
-    ioMock.of = <any>jest.fn(() => ioMock);
-    ioMock.emit = jest.fn();
-
-    socketMock = <any>{
-      broadcast: { to: jest.fn(() => socketMock) },
-      emit: jest.fn(),
-    };
-
-    storageMock = <ISocketStorage>{};
-    storageMock.getAll = jest.fn(() => []);
-
+    storageMock = <any>{ getAll: jest.fn(() => []) };
     party = new Party();
   });
 
@@ -31,6 +18,11 @@ describe('Party', () => {
 
   describe('#sendToAll', () => {
     it('calls Server#of and Server#emit methods', () => {
+      const ioMock: Server = <any>{
+        of: jest.fn(() => ioMock),
+        emit: jest.fn(),
+      };
+
       party.sendToAll(ioMock, 'event', 'any content');
       expect(ioMock.of).toHaveBeenCalledWith(party.id);
       expect(ioMock.emit).toHaveBeenCalledWith('event', 'any content');
@@ -39,6 +31,11 @@ describe('Party', () => {
 
   describe('#sendToAllExcept', () => {
     it('calls Socket.broadcast#of and Socket#emit methods', () => {
+      const socketMock: Socket = <any>{
+        broadcast: { to: jest.fn(() => socketMock) },
+        emit: jest.fn(),
+      };
+
       party.sendToAllExcept(socketMock, 'event', 'any content');
       expect(socketMock.broadcast.to).toHaveBeenCalledWith(party.id);
       expect(socketMock.emit).toHaveBeenCalledWith('event', 'any content');

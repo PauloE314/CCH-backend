@@ -14,36 +14,30 @@ describe('disconnect', () => {
 
   beforeEach(() => {
     ioMock = <Server>{};
-    socketMock = <Socket>{ id: '123456789' };
-    storageMock = <ISocketStorage>{};
-    partyMock = <Party>{
+    socketMock = <any>{ id: '123456789', emit: jest.fn() };
+    storageMock = <any>{
+      remove: jest.fn(),
+      get: jest.fn(key => (key === 'players' ? playerMock : partyMock)),
+    };
+
+    partyMock = <any>{
       id: '123',
-    };
-    playerMock = <Player>{
-      id: 'abc',
-      partyId: partyMock.id,
+      players: jest.fn(() => [playerMock, { id: 'def' }]),
+      sendToAll: jest.fn(),
     };
 
-    socketMock.emit = jest.fn();
-
-    partyMock.players = jest.fn(() => <Player[]>[playerMock, { id: 'def' }]);
-    partyMock.sendToAll = jest.fn();
-
-    storageMock.remove = jest.fn();
-    storageMock.get = <any>(
-      jest.fn(key => (key === 'players' ? playerMock : partyMock))
-    );
+    playerMock = <any>{ id: 'abc', partyId: partyMock.id };
   });
 
   it('removes disconnecting player from storage', () => {
-    disconnect(ioMock, socketMock, storageMock);
+    disconnect(ioMock, socketMock, storageMock, {});
     expect(storageMock.remove).toHaveBeenCalledWith('players', socketMock.id);
   });
 
   describe('when player is in party', () => {
     describe('and there are other players in party', () => {
       it('emits player leave event to remaining players', () => {
-        disconnect(ioMock, socketMock, storageMock);
+        disconnect(ioMock, socketMock, storageMock, {});
         expect(partyMock.sendToAll).toHaveBeenCalledWith(
           ioMock,
           'player-leave',
@@ -55,7 +49,7 @@ describe('disconnect', () => {
     describe('and there are not other players in party', () => {
       it('deletes party', () => {
         mocked(partyMock.players).mockImplementation(() => [playerMock]);
-        disconnect(ioMock, socketMock, storageMock);
+        disconnect(ioMock, socketMock, storageMock, {});
         expect(storageMock.remove).toHaveBeenCalledWith(
           'parties',
           partyMock.id

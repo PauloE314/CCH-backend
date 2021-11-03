@@ -13,12 +13,9 @@ describe('newPlayer', () => {
 
   beforeEach(() => {
     ioMock = <Server>{};
-    socketMock = <Socket>{};
-    storageMock = <ISocketStorage>{};
+    socketMock = <any>{ emit: jest.fn() };
+    storageMock = <any>{ store: jest.fn() };
     data = { username: 'Player' };
-
-    storageMock.store = jest.fn();
-    socketMock.emit = jest.fn();
   });
 
   describe('when is passed a username', () => {

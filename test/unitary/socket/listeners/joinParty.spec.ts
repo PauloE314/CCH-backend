@@ -14,22 +14,25 @@ describe('joinParty', () => {
   let data: { partyId: string };
 
   beforeEach(() => {
-    socketMock = <Socket>{};
-    socketMock.join = jest.fn();
-    socketMock.emit = jest.fn();
+    ioMock = <any>{};
+    playerMock = <any>{};
 
-    storageMock = <ISocketStorage>{};
-    storageMock.get = <any>(
-      jest.fn(type => (type === 'parties' ? partyMock : playerMock))
-    );
+    storageMock = <any>{
+      get: jest.fn(type => (type === 'parties' ? partyMock : playerMock)),
+    };
 
-    partyMock = <Party>{ id: '123' };
-    partyMock.players = jest.fn(() => []);
-    partyMock.sendToAll = jest.fn();
+    socketMock = <any>{
+      join: jest.fn(),
+      emit: jest.fn(),
+    };
+
+    partyMock = <any>{
+      id: '123',
+      players: jest.fn(() => []),
+      sendToAll: jest.fn(),
+    };
 
     data = { partyId: partyMock.id };
-    ioMock = <Server>{};
-    playerMock = <Player>{};
   });
 
   describe('when client is not in another party', () => {

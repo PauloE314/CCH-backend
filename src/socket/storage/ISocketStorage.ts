@@ -10,7 +10,7 @@ export interface ISocketStorage {
   getAll(key: 'players'): Player[];
 
   get(key: 'parties', objectIdentifier: string): Party | undefined;
-  get(key: 'players', objectIdentifier: string): Player;
+  get(key: 'players', objectIdentifier: string): Player | undefined;
 
   clearAll(): void;
   remove(key: TAllowedStorageKeys, id: String): void;

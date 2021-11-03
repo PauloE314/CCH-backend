@@ -5,6 +5,8 @@ const joinParty: TListener = (io, socket, storage, { partyId }) => {
   const player = storage.get('players', socket.id);
   const party = storage.get('parties', partyId);
 
+  if (!player) return;
+
   if (!player.partyId && party) {
     const partyPlayers = party.players(storage);
 

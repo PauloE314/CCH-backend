@@ -2,7 +2,7 @@ import TListener from './TListener';
 
 const disconnect: TListener = (io, socket, storage) => {
   const player = storage.get('players', socket.id);
-  const party = storage.get('parties', player.partyId);
+  const party = storage.get('parties', player?.partyId || '');
 
   if (party) {
     const remaining = party.players(storage);

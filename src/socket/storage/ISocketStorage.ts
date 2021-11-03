@@ -1,10 +1,10 @@
 import Party from '../game/Party';
 import Player from '../game/Player';
 
-export type allowedStorageKeys = 'players' | 'parties';
+export type TAllowedStorageKeys = 'players' | 'parties';
 
 export interface ISocketStorage {
-  store(key: allowedStorageKeys, data: any): void;
+  store(key: TAllowedStorageKeys, data: any): void;
 
   getAll(key: 'parties'): Party[];
   getAll(key: 'players'): Player[];
@@ -13,5 +13,5 @@ export interface ISocketStorage {
   get(key: 'players', objectIdentifier: string): Player;
 
   clearAll(): void;
-  remove(key: allowedStorageKeys, id: String): void;
+  remove(key: TAllowedStorageKeys, id: String): void;
 }

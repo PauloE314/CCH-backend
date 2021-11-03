@@ -1,6 +1,6 @@
 import Party from '../game/Party';
 import Player from '../game/Player';
-import { allowedStorageKeys, ISocketStorage } from './ISocketStorage';
+import { TAllowedStorageKeys, ISocketStorage } from './ISocketStorage';
 
 const dataSet = {
   players: <Player[]>[],
@@ -8,25 +8,25 @@ const dataSet = {
 };
 
 export default <ISocketStorage>class InMemorySocketStorage {
-  static store(key: allowedStorageKeys, data: any) {
+  static store(key: TAllowedStorageKeys, data: any) {
     if (dataSet[key]) dataSet[key].push(data);
     else dataSet[key] = [data];
   }
 
-  static getAll(key: allowedStorageKeys) {
+  static getAll(key: TAllowedStorageKeys) {
     return dataSet[key];
   }
 
-  static get(key: allowedStorageKeys, objectId: String) {
+  static get(key: TAllowedStorageKeys, objectId: String) {
     return (<any[]>dataSet[key]).find(({ id }) => id === objectId);
   }
 
-  static remove(key: allowedStorageKeys, objectId: String) {
+  static remove(key: TAllowedStorageKeys, objectId: String) {
     dataSet[key] = (<any[]>dataSet[key]).filter(({ id }) => id !== objectId);
   }
 
   static clearAll() {
-    const keys = <allowedStorageKeys[]>Object.keys(dataSet);
+    const keys = <TAllowedStorageKeys[]>Object.keys(dataSet);
     keys.forEach(key => {
       dataSet[key] = [];
     });

@@ -1,14 +1,10 @@
-import { Server, Socket } from 'socket.io';
-import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import Player from '~/socket/game/Player';
 import errorCodes from '~/config/errorCodes';
+import TListener from './TListener';
 
-export default function newPlayer(
-  _io: Server,
-  socket: Socket,
-  storage: ISocketStorage,
-  { username }: any
-) {
+const newPlayer: TListener = (_io, socket, storage, { username }) => {
   if (!username) socket.emit('error', errorCodes.invalidData);
   else storage.store('players', new Player(socket.id, username));
-}
+};
+
+export default newPlayer;

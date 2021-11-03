@@ -1,11 +1,6 @@
-import { Server, Socket } from 'socket.io';
-import { ISocketStorage } from '~/socket/storage/ISocketStorage';
+import TListener from './TListener';
 
-export default function disconnect(
-  io: Server,
-  socket: Socket,
-  storage: ISocketStorage
-) {
+const disconnect: TListener = (io, socket, storage) => {
   const player = storage.get('players', socket.id);
   const party = storage.get('parties', player.partyId);
 
@@ -17,4 +12,6 @@ export default function disconnect(
   }
 
   storage.remove('players', socket.id);
-}
+};
+
+export default disconnect;

@@ -1,13 +1,8 @@
-import { Server, Socket } from 'socket.io';
 import errorCodes from '~/config/errorCodes';
 import Party from '../game/Party';
-import { ISocketStorage } from '../storage/ISocketStorage';
+import TListener from './TListener';
 
-export default function newParty(
-  _io: Server,
-  socket: Socket,
-  storage: ISocketStorage
-) {
+const newParty: TListener = (_io, socket, storage) => {
   const player = storage.get('players', socket.id);
 
   if (!player.partyId) {
@@ -20,4 +15,6 @@ export default function newParty(
   } else {
     socket.emit('error', errorCodes.inParty);
   }
-}
+};
+
+export default newParty;

@@ -5,9 +5,11 @@ import Player from './Player';
 
 export default class Party {
   public id: string;
+  public inGame: boolean;
 
   constructor() {
     this.id = generateRandomString(6);
+    this.inGame = false;
   }
 
   sendToAll(io: Server, eventName: string, content: any) {

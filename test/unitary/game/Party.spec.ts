@@ -1,9 +1,10 @@
-import { Server } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import Party from '~/socket/game/Party';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 
 describe('Party', () => {
   let ioMock: Server;
+  let socketMock: Socket;
   let storageMock: ISocketStorage;
   let party: Party;
 
@@ -11,6 +12,11 @@ describe('Party', () => {
     ioMock = <Server>{};
     ioMock.of = <any>jest.fn(() => ioMock);
     ioMock.emit = jest.fn();
+
+    socketMock = <any>{
+      broadcast: { to: jest.fn(() => socketMock) },
+      emit: jest.fn(),
+    };
 
     storageMock = <ISocketStorage>{};
     storageMock.getAll = jest.fn(() => []);
@@ -28,6 +34,14 @@ describe('Party', () => {
       party.sendToAll(ioMock, 'event', 'any content');
       expect(ioMock.of).toHaveBeenCalledWith(party.id);
       expect(ioMock.emit).toHaveBeenCalledWith('event', 'any content');
+    });
+  });
+
+  describe('#sendToAllExcept', () => {
+    it('calls Socket.broadcast#of and Socket#emit methods', () => {
+      party.sendToAllExcept(socketMock, 'event', 'any content');
+      expect(socketMock.broadcast.to).toHaveBeenCalledWith(party.id);
+      expect(socketMock.emit).toHaveBeenCalledWith('event', 'any content');
     });
   });
 

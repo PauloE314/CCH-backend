@@ -5,6 +5,7 @@ import newPlayer from './listeners/newPlayer';
 import disconnect from './listeners/disconnect';
 import newParty from './listeners/newParty';
 import joinParty from './listeners/joinParty';
+import chatMessage from './listeners/chatMessage';
 
 export default function setupWebSockets(
   io: SocketServer,
@@ -17,5 +18,6 @@ export default function setupWebSockets(
     socket.on('disconnect', data => disconnect(io, socket, storage, data));
     socket.on('new-party', data => newParty(io, socket, storage, data));
     socket.on('join-party', data => joinParty(io, socket, storage, data));
+    socket.on('chat-message', data => chatMessage(io, socket, storage, data));
   });
 }

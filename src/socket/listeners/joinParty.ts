@@ -15,6 +15,7 @@ export default function joinParty(
     const partyPlayers = party.players(storage);
 
     socket.join(party.id);
+    socket.emit('party-id', party.id);
     player.partyId = party.id;
     party.sendToAll(io, 'player-join', partyPlayers);
   } else {

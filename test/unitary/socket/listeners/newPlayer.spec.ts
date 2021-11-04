@@ -13,7 +13,7 @@ describe('newPlayer', () => {
   let storageMock: ISocketStorage;
 
   beforeEach(() => {
-    socketMock = <any>{ emit: jest.fn() };
+    socketMock = <any>{ emit: jest.fn(), removeAllListeners: jest.fn() };
     storageMock = <any>{ store: jest.fn() };
   });
 
@@ -33,6 +33,11 @@ describe('newPlayer', () => {
       expect(player).toMatchObject({
         username: data.username,
       });
+    });
+
+    it("removes 'new-player' event from socket", () => {
+      newPlayer(ioMock, socketMock, storageMock, data);
+      expect(socketMock.removeAllListeners).toHaveBeenCalledWith('new-player');
     });
   });
 

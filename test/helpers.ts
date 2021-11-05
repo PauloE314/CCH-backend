@@ -25,20 +25,21 @@ export function startWebSocketsTestServer() {
 
 interface IClientFactoryParams {
   namespace?: string;
-  query?: { [key: string]: string };
+  username?: string;
   params?: Partial<SocketOptions & ManagerOptions>;
 }
 
-interface ITestWSPCallbackParams {
+interface IWSTesterParams {
   io: Server;
   clientFactory: (params?: IClientFactoryParams) => Socket;
   done: () => any;
 }
 
-export function testWS(
-  message: string,
-  cb?: (args: ITestWSPCallbackParams) => any
-) {
+export const defaultClientParams: IClientFactoryParams = {
+  username: 'Player',
+};
+
+function WStester(message: string, cb: (args: IWSTesterParams) => any) {
   if (!cb) {
     it.todo(message);
     return;
@@ -51,7 +52,11 @@ export function testWS(
       const clientFactory = (data: IClientFactoryParams = {}) => {
         const namespace = data.namespace || '';
         const params = data.params || {};
-        params.query = data.query || undefined;
+        params.query = params.query || {};
+
+        if (data.username) {
+          params.query.username = data.username;
+        }
 
         const newClient = connect(
           `http://localhost:${port}${namespace}`,
@@ -68,8 +73,7 @@ export function testWS(
       };
 
       try {
-        const resp = cb({ io, clientFactory, done: end });
-        if (resp instanceof Promise) resp.catch(end);
+        cb({ io, clientFactory, done: end });
       } catch (error) {
         end(error);
       }
@@ -77,26 +81,34 @@ export function testWS(
   });
 }
 
-export const defaultClientParams: IClientFactoryParams = {
-  query: { username: 'Player' },
-};
+export function testWS(message: string, cb: (params: IWSTesterParams) => any) {
+  WStester(message, params => {
+    const { done } = params;
+
+    const resp = cb(params);
+    if (resp instanceof Promise) resp.catch(done);
+  });
+}
 
 export function testWSClient(
   message: string,
-  cb?: (args: ITestWSPCallbackParams & { client: Socket }) => any
+  cb: (params: IWSTesterParams & { client: Socket }) => any
 ) {
-  if (!cb) {
-    testWS(message, cb);
-    return;
-  }
+  WStester(message, params => {
+    const { done, clientFactory } = params;
+    const client = clientFactory(defaultClientParams);
 
-  testWS(message, async cbParams => {
-    const client = cbParams.clientFactory(defaultClientParams);
-    await cb({ ...cbParams, client });
+    client.on('connect', () => {
+      const resp = cb({ ...params, client });
+      if (resp instanceof Promise) resp.catch(done);
+    });
   });
 }
 
 export async function act(cb: () => any, time = 50) {
+  const t = time / 2;
+
+  await delay(t);
   cb();
-  await delay(time);
+  await delay(t);
 }

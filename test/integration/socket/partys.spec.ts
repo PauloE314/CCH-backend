@@ -11,7 +11,6 @@ describe('Parties', () => {
         done();
       });
 
-      await act(() => client.emit('new-player', { username: 'Player' }));
       await act(() => client.emit('new-party'), 0);
     });
   });
@@ -20,24 +19,22 @@ describe('Parties', () => {
     testWSClient(
       'joins party and sends its id',
       async ({ client, clientFactory, done }) => {
-        const incoming = clientFactory();
-
         client.on('player-join', data => {
           expect(data).toEqual(
             expect.arrayContaining([
-              expect.objectContaining({ username: 'Original' }),
+              expect.objectContaining({ username: 'Player' }),
               expect.objectContaining({ username: 'Incoming' }),
             ])
           );
           done();
         });
 
-        await act(() => client.emit('new-player', { username: 'Original' }));
-        await act(() => client.emit('new-party'), 100);
+        client.on('party-id', partyId => {
+          const incoming = clientFactory({ username: 'Incoming' });
+          incoming.emit('join-party', { partyId });
+        });
 
-        const partyId = inMemoryStorage.getAll('parties')[0].id;
-        await act(() => incoming.emit('new-player', { username: 'Incoming' }));
-        await act(() => incoming.emit('join-party', { partyId }), 0);
+        await act(() => client.emit('new-party'), 150);
       }
     );
   });

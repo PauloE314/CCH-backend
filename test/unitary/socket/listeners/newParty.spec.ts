@@ -1,9 +1,9 @@
 import { Server, Socket } from 'socket.io';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import newParty from '~/socket/listeners/newParty';
-import Player from '~/socket/game/Player';
+import Player from '~/socket/models/Player';
 import errorCodes from '~/config/errorCodes';
-import Party from '~/socket/game/Party';
+import Party from '~/socket/models/Party';
 
 describe('newParty', () => {
   const ioMock = <Server>{};

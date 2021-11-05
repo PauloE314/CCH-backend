@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import Party from '~/socket/game/Party';
+import Party from '~/socket/models/Party';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 
 describe('Party', () => {

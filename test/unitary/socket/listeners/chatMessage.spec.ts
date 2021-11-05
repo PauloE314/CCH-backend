@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import errorCodes from '~/config/errorCodes';
-import Party from '~/socket/game/Party';
-import Player from '~/socket/game/Player';
+import Party from '~/socket/models/Party';
+import Player from '~/socket/models/Player';
 import chatMessage from '~/socket/listeners/chatMessage';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 

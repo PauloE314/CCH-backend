@@ -1,4 +1,4 @@
-import Player from '~/socket/game/Player';
+import Player from '~/socket/models/Player';
 import errorCodes from '~/config/errorCodes';
 import TListener from './TListener';
 

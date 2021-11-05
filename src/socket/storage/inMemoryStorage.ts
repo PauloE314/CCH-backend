@@ -1,5 +1,5 @@
-import Party from '../game/Party';
-import Player from '../game/Player';
+import Party from '../models/Party';
+import Player from '../models/Player';
 import { TAllowedStorageKeys, ISocketStorage } from './ISocketStorage';
 
 const dataSet = {

@@ -2,8 +2,8 @@ import { Server, Socket } from 'socket.io';
 import { mocked } from 'ts-jest/utils';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import disconnect from '~/socket/listeners/disconnect';
-import Player from '~/socket/game/Player';
-import Party from '~/socket/game/Party';
+import Player from '~/socket/models/Player';
+import Party from '~/socket/models/Party';
 
 describe('disconnect', () => {
   const ioMock = <Server>{};

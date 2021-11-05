@@ -1,5 +1,5 @@
 import errorCodes from '~/config/errorCodes';
-import Party from '../game/Party';
+import Party from '../models/Party';
 import TListener from './TListener';
 
 const newParty: TListener = (_io, socket, storage) => {

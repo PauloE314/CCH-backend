@@ -1,4 +1,4 @@
-import Party from '~/socket/game/Party';
+import Party from '~/socket/models/Party';
 import inMemoryStorage from '~/socket/storage/inMemoryStorage';
 import { act, testSocket } from '../../helpers';
 

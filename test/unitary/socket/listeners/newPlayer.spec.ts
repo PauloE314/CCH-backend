@@ -2,7 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { mocked } from 'ts-jest/utils';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import newPlayer from '~/socket/listeners/newPlayer';
-import Player from '~/socket/game/Player';
+import Player from '~/socket/models/Player';
 import errorCodes from '~/config/errorCodes';
 
 describe('newPlayer', () => {

@@ -1,13 +1,8 @@
-import { Socket } from 'socket.io';
 import errorCodes from '~/config/errorCodes';
 import Player from '../models/Player';
-import { ISocketStorage } from '../storage/ISocketStorage';
+import TMiddleware from './TMiddleware';
 
-export default function setupPlayer(
-  socket: Socket,
-  storage: ISocketStorage,
-  next: Function
-) {
+const setupPlayer: TMiddleware = (_io, socket, storage, next) => {
   const { username } = socket.handshake.query;
 
   if (!username) next(new Error(`${errorCodes.invalidData}`));
@@ -16,4 +11,6 @@ export default function setupPlayer(
     storage.store('players', new Player(socket.id, playerName));
     next();
   }
-}
+};
+
+export default setupPlayer;

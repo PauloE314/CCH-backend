@@ -14,7 +14,7 @@ export default function setupWebSockets(
 ) {
   storage.clearAll();
 
-  io.use((socket, next) => setupPlayer(socket, storage, next));
+  io.use((socket, next) => setupPlayer(io, socket, storage, next));
 
   io.on('connection', socket => {
     socket.on('disconnect', data => disconnect(io, socket, storage, data));

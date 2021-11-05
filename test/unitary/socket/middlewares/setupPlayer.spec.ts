@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io';
+import { Server, Socket } from 'socket.io';
 import { mocked } from 'ts-jest/utils';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import setupPlayer from '~/socket/middlewares/setupPlayer';
@@ -6,6 +6,7 @@ import Player from '~/socket/models/Player';
 import errorCodes from '~/config/errorCodes';
 
 describe('setupPlayer', () => {
+  const ioMock = <Server>{};
   const data = { username: 'Player' };
 
   let socketMock: Socket;
@@ -25,7 +26,7 @@ describe('setupPlayer', () => {
 
   describe('when is passed a username', () => {
     it('saves the new player in the player storage', () => {
-      setupPlayer(socketMock, storageMock, nextFunctionMock);
+      setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
       expect(storageMock.store).toHaveBeenCalledWith(
         'players',
         expect.any(Player)
@@ -33,7 +34,7 @@ describe('setupPlayer', () => {
     });
 
     it('saves player with correct username', () => {
-      setupPlayer(socketMock, storageMock, nextFunctionMock);
+      setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
 
       const player = mocked(storageMock).store.mock.calls[0][1];
       expect(player).toMatchObject({
@@ -42,7 +43,7 @@ describe('setupPlayer', () => {
     });
 
     it("calls 'next' function without error", () => {
-      setupPlayer(socketMock, storageMock, nextFunctionMock);
+      setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
       expect(nextFunctionMock).toHaveBeenCalledWith();
     });
   });
@@ -50,7 +51,7 @@ describe('setupPlayer', () => {
   describe('when is not passed a username', () => {
     it("calls 'next' with an invalidData error", () => {
       socketMock.handshake.query = {};
-      setupPlayer(socketMock, storageMock, nextFunctionMock);
+      setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
       expect(nextFunctionMock).toHaveBeenCalledWith(expect.any(Error));
 
       const { message } = nextFunctionMock.mock.calls[0][0];

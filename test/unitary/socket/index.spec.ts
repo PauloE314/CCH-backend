@@ -19,6 +19,8 @@ describe('setupWebSockets', () => {
     storageMock = <any>{
       clearAll: jest.fn(),
     };
+
+    mocked(setupPlayer).mockClear();
   });
 
   it("calls SocketServer#on with 'connection'", () => {
@@ -37,6 +39,7 @@ describe('setupWebSockets', () => {
     callback(socketMock, nextFunctionMock);
 
     expect(setupPlayer).toHaveBeenCalledWith(
+      ioMock,
       socketMock,
       expect.anything(),
       nextFunctionMock

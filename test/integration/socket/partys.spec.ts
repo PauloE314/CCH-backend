@@ -1,10 +1,10 @@
 import Party from '~/socket/models/Party';
 import inMemoryStorage from '~/socket/storage/inMemoryStorage';
-import { act, testSocket } from '../../helpers';
+import { act, testWSClient } from '../../helpers';
 
 describe('Parties', () => {
   describe('Create new party', () => {
-    testSocket('stores party and sends its id', async ({ client, done }) => {
+    testWSClient('stores party and sends its id', async ({ client, done }) => {
       client.on('party-id', partyId => {
         expect(typeof partyId).toBe('string');
         expect(inMemoryStorage.get('parties', partyId)).toBeInstanceOf(Party);
@@ -17,7 +17,7 @@ describe('Parties', () => {
   });
 
   describe('Join party', () => {
-    testSocket(
+    testWSClient(
       'joins party and sends its id',
       async ({ client, clientFactory, done }) => {
         const incoming = clientFactory();

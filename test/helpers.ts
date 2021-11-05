@@ -1,6 +1,10 @@
 import http from 'http';
 import { Server } from 'socket.io';
-import connect, { Socket } from 'socket.io-client';
+import connect, {
+  Socket,
+  SocketOptions,
+  ManagerOptions,
+} from 'socket.io-client';
 import setupWebSockets from '~/socket';
 import inMemoryStorage from '~/socket/storage/inMemoryStorage';
 import { delay } from '~/utils';
@@ -19,14 +23,22 @@ export function startWebSocketsTestServer() {
   });
 }
 
-type TTestSocketCallBack = (args: {
-  io: Server;
-  client: Socket;
-  clientFactory: () => Socket;
-  done: () => any;
-}) => any;
+interface IClientFactoryParams {
+  namespace?: string;
+  query?: { [key: string]: string };
+  params?: Partial<SocketOptions & ManagerOptions>;
+}
 
-export function testSocket(message: string, cb?: TTestSocketCallBack) {
+interface ITestWSPCallbackParams {
+  io: Server;
+  clientFactory: (params?: IClientFactoryParams) => Socket;
+  done: () => any;
+}
+
+export function testWS(
+  message: string,
+  cb?: (args: ITestWSPCallbackParams) => any
+) {
   if (!cb) {
     it.todo(message);
     return;
@@ -36,8 +48,15 @@ export function testSocket(message: string, cb?: TTestSocketCallBack) {
     startWebSocketsTestServer().then(([io, port]) => {
       const clients: Socket[] = [];
 
-      const clientFactory = (namespace = '') => {
-        const newClient = connect(`http://localhost:${port}${namespace}`);
+      const clientFactory = (data: IClientFactoryParams = {}) => {
+        const namespace = data.namespace || '';
+        const params = data.params || {};
+        params.query = data.query || undefined;
+
+        const newClient = connect(
+          `http://localhost:${port}${namespace}`,
+          params
+        );
         clients.push(newClient);
         return newClient;
       };
@@ -48,15 +67,32 @@ export function testSocket(message: string, cb?: TTestSocketCallBack) {
         done(err);
       };
 
-      const client = clientFactory();
-
       try {
-        const resp = cb({ io, client, clientFactory, done: end });
+        const resp = cb({ io, clientFactory, done: end });
         if (resp instanceof Promise) resp.catch(end);
       } catch (error) {
         end(error);
       }
     });
+  });
+}
+
+export const defaultClientParams: IClientFactoryParams = {
+  query: { username: 'Player' },
+};
+
+export function testWSClient(
+  message: string,
+  cb?: (args: ITestWSPCallbackParams & { client: Socket }) => any
+) {
+  if (!cb) {
+    testWS(message, cb);
+    return;
+  }
+
+  testWS(message, async cbParams => {
+    const client = cbParams.clientFactory(defaultClientParams);
+    await cb({ ...cbParams, client });
   });
 }
 

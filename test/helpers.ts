@@ -36,8 +36,8 @@ export function testSocket(message: string, cb?: TTestSocketCallBack) {
     startWebSocketsTestServer().then(([io, port]) => {
       const clients: Socket[] = [];
 
-      const clientFactory = () => {
-        const newClient = connect(`http://localhost:${port}`);
+      const clientFactory = (namespace = '') => {
+        const newClient = connect(`http://localhost:${port}${namespace}`);
         clients.push(newClient);
         return newClient;
       };

@@ -39,7 +39,7 @@ export const defaultClientParams: IClientFactoryParams = {
   username: 'Player',
 };
 
-function WStester(message: string, cb: (args: IWSTesterParams) => any) {
+const WStester = (message: string, cb: (args: IWSTesterParams) => any) => {
   if (!cb) {
     it.todo(message);
     return;
@@ -79,7 +79,7 @@ function WStester(message: string, cb: (args: IWSTesterParams) => any) {
       }
     });
   });
-}
+};
 
 export function testWS(message: string, cb: (params: IWSTesterParams) => any) {
   WStester(message, params => {

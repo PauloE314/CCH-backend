@@ -7,16 +7,21 @@ import Party from '~/socket/models/Party';
 
 describe('disconnect', () => {
   const ioMock = <Server>{};
-  const playerMock = <Player>{ id: 'abc', partyId: '123' };
 
   let socketMock: Socket;
   let storageMock: ISocketStorage;
   let partyMock: Party;
+  let playerMock: Player;
 
   beforeEach(() => {
     socketMock = <any>{
       id: '123456789',
       emit: jest.fn(),
+    };
+
+    playerMock = <any>{
+      id: socketMock.id,
+      partyId: '123',
     };
 
     storageMock = <any>{

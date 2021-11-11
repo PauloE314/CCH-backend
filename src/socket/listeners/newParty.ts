@@ -1,4 +1,4 @@
-import errorCodes from '~/config/errorCodes';
+import { errorCodes } from '~/config/settings';
 import Party from '../models/Party';
 import TListener from './TListener';
 

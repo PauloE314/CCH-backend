@@ -1,5 +1,4 @@
-import errorCodes from '~/config/errorCodes';
-import gameSettings from '~/config/gameSettings';
+import { errorCodes, gameSettings } from '~/config/settings';
 import TListener from './TListener';
 
 const { maxPlayerAmount } = gameSettings;

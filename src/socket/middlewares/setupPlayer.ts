@@ -1,4 +1,4 @@
-import errorCodes from '~/config/errorCodes';
+import { errorCodes } from '~/config/settings';
 import Player from '../models/Player';
 import TMiddleware from './TMiddleware';
 

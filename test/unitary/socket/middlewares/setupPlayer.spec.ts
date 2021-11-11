@@ -3,7 +3,7 @@ import { mocked } from 'ts-jest/utils';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import setupPlayer from '~/socket/middlewares/setupPlayer';
 import Player from '~/socket/models/Player';
-import errorCodes from '~/config/errorCodes';
+import { errorCodes } from '~/config/settings';
 
 describe('setupPlayer', () => {
   const ioMock = <Server>{};

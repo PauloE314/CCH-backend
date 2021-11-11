@@ -1,4 +1,4 @@
-import errorCodes from '~/config/errorCodes';
+import { errorCodes } from '~/config/settings';
 import TListener from './TListener';
 
 const chatMessage: TListener = (_io, socket, storage, { message }) => {

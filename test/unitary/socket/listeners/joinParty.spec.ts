@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import errorCodes from '~/config/errorCodes';
+import { errorCodes } from '~/config/settings';
 import Party from '~/socket/models/Party';
 import Player from '~/socket/models/Player';
 import joinParty from '~/socket/listeners/joinParty';

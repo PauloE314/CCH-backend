@@ -4,7 +4,9 @@
   "main": "src/index.js",
   "license": "MIT",
   "scripts": {
-    "test": "jest --verbose",
+    "test": "yarn test:unitary && yarn test:integration",
+    "test:unitary": "jest unitary --verbose",
+    "test:integration": "jest integration --verbose --runInBand",
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "db": "ts-node-dev ./bin/database.ts"
   },

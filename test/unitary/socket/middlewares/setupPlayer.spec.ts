@@ -25,16 +25,16 @@ describe('setupPlayer', () => {
   });
 
   describe('when is passed a username', () => {
-    it('saves the new player in the player storage', () => {
-      setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
+    it('saves the new player in the player storage', async () => {
+      await setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
       expect(storageMock.store).toHaveBeenCalledWith(
         'players',
         expect.any(Player)
       );
     });
 
-    it('saves player with correct username', () => {
-      setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
+    it('saves player with correct username', async () => {
+      await setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
 
       const player = mocked(storageMock).store.mock.calls[0][1];
       expect(player).toMatchObject({
@@ -42,16 +42,16 @@ describe('setupPlayer', () => {
       });
     });
 
-    it("calls 'next' function without error", () => {
-      setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
+    it("calls 'next' function without error", async () => {
+      await setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
       expect(nextFunctionMock).toHaveBeenCalledWith();
     });
   });
 
   describe('when is not passed a username', () => {
-    it("calls 'next' with an invalidData error", () => {
+    it("calls 'next' with an invalidData error", async () => {
       socketMock.handshake.query = {};
-      setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
+      await setupPlayer(ioMock, socketMock, storageMock, nextFunctionMock);
       expect(nextFunctionMock).toHaveBeenCalledWith(expect.any(Error));
 
       const { message } = nextFunctionMock.mock.calls[0][0];

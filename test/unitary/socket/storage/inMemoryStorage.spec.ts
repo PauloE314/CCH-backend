@@ -11,17 +11,17 @@ describe('InMemorySocketStorage', () => {
 
   describe('#getAll', () => {
     describe('when the entity set is empty', () => {
-      it('returns a empty array', () => {
-        expect(InMemorySocketStorage.getAll('players')).toEqual([]);
+      it('returns a empty array', async () => {
+        expect(await InMemorySocketStorage.getAll('players')).toEqual([]);
       });
     });
   });
 
   describe('#store', () => {
-    it('stores data on the given key', () => {
+    it('stores data on the given key', async () => {
       const player = players[0];
-      InMemorySocketStorage.store('players', player);
-      expect(InMemorySocketStorage.getAll('players')).toEqual([player]);
+      await InMemorySocketStorage.store('players', player);
+      expect(await InMemorySocketStorage.getAll('players')).toEqual([player]);
     });
   });
 
@@ -33,8 +33,10 @@ describe('InMemorySocketStorage', () => {
     });
 
     describe("when there's a corresponding entity on dataset", () => {
-      it('returns it', () => {
-        expect(InMemorySocketStorage.get('players', player.id)).toEqual(player);
+      it('returns it', async () => {
+        expect(await InMemorySocketStorage.get('players', player.id)).toEqual(
+          player
+        );
       });
     });
   });
@@ -44,20 +46,20 @@ describe('InMemorySocketStorage', () => {
       players.forEach(player => InMemorySocketStorage.store('players', player));
     });
 
-    it('removes all entities', () => {
-      InMemorySocketStorage.clearAll();
-      expect(InMemorySocketStorage.getAll('players')).toEqual([]);
+    it('removes all entities', async () => {
+      await InMemorySocketStorage.clearAll();
+      expect(await InMemorySocketStorage.getAll('players')).toEqual([]);
     });
   });
 
   describe('#remove', () => {
-    beforeAll(() => {
-      InMemorySocketStorage.store('players', players[0]);
+    beforeAll(async () => {
+      await InMemorySocketStorage.store('players', players[0]);
     });
 
-    it('removes all entities', () => {
-      InMemorySocketStorage.remove('players', players[0].id);
-      expect(InMemorySocketStorage.getAll('players')).toEqual([]);
+    it('removes all entities', async () => {
+      await InMemorySocketStorage.remove('players', players[0].id);
+      expect(await InMemorySocketStorage.getAll('players')).toEqual([]);
     });
   });
 });

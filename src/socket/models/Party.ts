@@ -20,8 +20,8 @@ export default class Party {
     socket.broadcast.to(this.id).emit(eventName, content);
   }
 
-  players(storage: ISocketStorage) {
-    const allPlayers: Player[] = storage.getAll('players');
+  async players(storage: ISocketStorage) {
+    const allPlayers: Player[] = await storage.getAll('players');
     return allPlayers.filter(({ partyId }) => partyId === this.id);
   }
 }

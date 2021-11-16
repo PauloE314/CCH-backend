@@ -24,8 +24,8 @@ describe('chatMessage', () => {
   });
 
   describe('when player is in party', () => {
-    it('sends chat message event for all except the player', () => {
-      chatMessage(ioMock, socketMock, storageMock, data);
+    it('sends chat message event for all except the player', async () => {
+      await chatMessage(ioMock, socketMock, storageMock, data);
       expect(partyMock.sendToAllExcept).toHaveBeenCalledWith(
         socketMock,
         'chat-message',
@@ -35,11 +35,11 @@ describe('chatMessage', () => {
   });
 
   describe('when player is not in party', () => {
-    it('emits not in party error', () => {
+    it('emits not in party error', async () => {
       playerMock.partyId = '';
       partyMock = <any>null;
 
-      chatMessage(ioMock, socketMock, storageMock, data);
+      await chatMessage(ioMock, socketMock, storageMock, data);
       expect(socketMock.emit).toHaveBeenCalledWith(
         'error',
         errorCodes.notInParty

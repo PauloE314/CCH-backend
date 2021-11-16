@@ -6,6 +6,6 @@ type TListener = (
   socket: Socket,
   storage: ISocketStorage,
   data: any
-) => any;
+) => Promise<any>;
 
 export default TListener;

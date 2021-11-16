@@ -36,15 +36,15 @@ describe('disconnect', () => {
     };
   });
 
-  it('removes disconnecting player from storage', () => {
-    disconnect(ioMock, socketMock, storageMock, {});
+  it('removes disconnecting player from storage', async () => {
+    await disconnect(ioMock, socketMock, storageMock, {});
     expect(storageMock.remove).toHaveBeenCalledWith('players', socketMock.id);
   });
 
   describe('when player is in party', () => {
     describe('and there are other players in party', () => {
-      it('emits player leave event to remaining players', () => {
-        disconnect(ioMock, socketMock, storageMock, {});
+      it('emits player leave event to remaining players', async () => {
+        await disconnect(ioMock, socketMock, storageMock, {});
         expect(partyMock.sendToAll).toHaveBeenCalledWith(
           ioMock,
           'player-leave',
@@ -54,9 +54,9 @@ describe('disconnect', () => {
     });
 
     describe('and there are not other players in party', () => {
-      it('deletes party', () => {
-        mocked(partyMock.players).mockImplementation(() => [playerMock]);
-        disconnect(ioMock, socketMock, storageMock, {});
+      it('deletes party', async () => {
+        mocked(partyMock.players).mockImplementation(async () => [playerMock]);
+        await disconnect(ioMock, socketMock, storageMock, {});
         expect(storageMock.remove).toHaveBeenCalledWith(
           'parties',
           partyMock.id

@@ -3,9 +3,9 @@ import TListener from './TListener';
 
 const { maxPlayerAmount } = gameSettings;
 
-const joinParty: TListener = (io, socket, storage, { partyId }) => {
-  const player = storage.get('players', socket.id);
-  const party = storage.get('parties', partyId);
+const joinParty: TListener = async (io, socket, storage, { partyId }) => {
+  const player = await storage.get('players', socket.id);
+  const party = await storage.get('parties', partyId);
 
   if (!player) return;
 
@@ -19,7 +19,7 @@ const joinParty: TListener = (io, socket, storage, { partyId }) => {
     return;
   }
 
-  const playerAmount = party.players(storage).length;
+  const playerAmount = (await party.players(storage)).length;
   if (playerAmount > maxPlayerAmount) {
     socket.emit('error', errorCodes.PartyTooLarge);
     return;
@@ -28,7 +28,7 @@ const joinParty: TListener = (io, socket, storage, { partyId }) => {
   player.partyId = party.id;
   socket.join(party.id);
   socket.emit('party-id', party.id);
-  party.sendToAll(io, 'player-join', party.players(storage));
+  party.sendToAll(io, 'player-join', await party.players(storage));
 };
 
 export default joinParty;

@@ -5,9 +5,11 @@ import { act, testWSClient } from '../../helpers';
 describe('Parties', () => {
   describe('Create new party', () => {
     testWSClient('stores party and sends its id', async ({ client, done }) => {
-      client.on('party-id', partyId => {
+      client.on('party-id', async partyId => {
         expect(typeof partyId).toBe('string');
-        expect(inMemoryStorage.get('parties', partyId)).toBeInstanceOf(Party);
+        expect(await inMemoryStorage.get('parties', partyId)).toBeInstanceOf(
+          Party
+        );
         done();
       });
 

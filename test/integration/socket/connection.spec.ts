@@ -10,7 +10,7 @@ describe('Connection', () => {
         clientFactory({ username: 'Player' });
 
         await delay(50);
-        expect(inMemoryStorage.getAll('players').length).toBe(1);
+        expect((await inMemoryStorage.getAll('players')).length).toBe(1);
         expect(io.sockets.sockets.size).toBe(1);
         done();
       }
@@ -24,7 +24,7 @@ describe('Connection', () => {
         clientFactory();
 
         await delay(50);
-        expect(inMemoryStorage.getAll('players').length).toBe(0);
+        expect((await inMemoryStorage.getAll('players')).length).toBe(0);
         expect(io.sockets.sockets.size).toBe(0);
         done();
       }

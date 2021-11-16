@@ -34,13 +34,13 @@ describe('joinParty', () => {
 
   describe('when client is not in another party', () => {
     describe('and the party exists', () => {
-      it('puts client in the party', () => {
-        joinParty(ioMock, socketMock, storageMock, data);
+      it('puts client in the party', async () => {
+        await joinParty(ioMock, socketMock, storageMock, data);
         expect(socketMock.join).toHaveBeenCalledWith(partyMock.id);
       });
 
-      it('emits player joined event to party players', () => {
-        joinParty(ioMock, socketMock, storageMock, data);
+      it('emits player joined event to party players', async () => {
+        await joinParty(ioMock, socketMock, storageMock, data);
         expect(partyMock.sendToAll).toHaveBeenCalledWith(
           ioMock,
           'player-join',
@@ -50,12 +50,12 @@ describe('joinParty', () => {
     });
 
     describe('and the party does not exist', () => {
-      it('emits inexistentParty error', () => {
+      it('emits inexistentParty error', async () => {
         storageMock.get = <any>(
           jest.fn(key => (key === 'players' ? playerMock : undefined))
         );
 
-        joinParty(ioMock, socketMock, storageMock, data);
+        await joinParty(ioMock, socketMock, storageMock, data);
         expect(socketMock.emit).toHaveBeenCalledWith(
           'error',
           errorCodes.inexistentParty
@@ -65,10 +65,10 @@ describe('joinParty', () => {
   });
 
   describe('when client is in another party', () => {
-    it('emits inParty error', () => {
+    it('emits inParty error', async () => {
       playerMock.partyId = '12345';
 
-      joinParty(ioMock, socketMock, storageMock, data);
+      await joinParty(ioMock, socketMock, storageMock, data);
       expect(socketMock.emit).toHaveBeenCalledWith('error', errorCodes.inParty);
     });
   });

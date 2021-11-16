@@ -43,12 +43,12 @@ describe('Party', () => {
   });
 
   describe('#players', () => {
-    it('calls SocketStorage#getAll', () => {
-      party.players(storageMock);
+    it('calls SocketStorage#getAll', async () => {
+      await party.players(storageMock);
       expect(storageMock.getAll).toHaveBeenCalledWith('players');
     });
 
-    it('returns correct players', () => {
+    it('returns correct players', async () => {
       storageMock.getAll = <any>(
         jest.fn(() => [
           { partyId: party.id },
@@ -58,7 +58,7 @@ describe('Party', () => {
         ])
       );
 
-      const result = party.players(storageMock);
+      const result = await party.players(storageMock);
       expect(result).toEqual([{ partyId: party.id }, { partyId: party.id }]);
     });
   });

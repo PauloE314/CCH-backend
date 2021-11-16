@@ -22,8 +22,8 @@ describe('setupParty', () => {
   });
 
   describe('when a partyId is sended', () => {
-    it("calls 'joinParty' listener", () => {
-      setupParty(ioMock, socketMock, storageMock, nextFunctionMock);
+    it("calls 'joinParty' listener", async () => {
+      await setupParty(ioMock, socketMock, storageMock, nextFunctionMock);
       expect(joinParty).toHaveBeenCalledWith(
         ioMock,
         socketMock,
@@ -34,15 +34,15 @@ describe('setupParty', () => {
   });
 
   describe('when no partyId is sended', () => {
-    it("does not calls 'joinParty' listener", () => {
+    it("does not calls 'joinParty' listener", async () => {
       socketMock.handshake.query = {};
-      setupParty(ioMock, socketMock, storageMock, nextFunctionMock);
+      await setupParty(ioMock, socketMock, storageMock, nextFunctionMock);
       expect(joinParty).not.toHaveBeenCalled();
     });
   });
 
-  it("calls 'next' listener", () => {
-    setupParty(ioMock, socketMock, storageMock, nextFunctionMock);
+  it("calls 'next' listener", async () => {
+    await setupParty(ioMock, socketMock, storageMock, nextFunctionMock);
     expect(nextFunctionMock).toHaveBeenCalledWith();
   });
 });

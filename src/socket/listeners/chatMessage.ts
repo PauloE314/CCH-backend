@@ -1,9 +1,9 @@
 import { errorCodes } from '~/config/settings';
 import TListener from './TListener';
 
-const chatMessage: TListener = (_io, socket, storage, { message }) => {
-  const player = storage.get('players', socket.id);
-  const party = storage.get('parties', player?.id || '');
+const chatMessage: TListener = async (_io, socket, storage, { message }) => {
+  const player = await storage.get('players', socket.id);
+  const party = await storage.get('parties', player?.id || '');
 
   if (!player) return;
 

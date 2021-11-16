@@ -6,6 +6,6 @@ type TMiddleware = (
   socket: Socket,
   storage: ISocketStorage,
   next: Function
-) => any;
+) => Promise<any> | any;
 
 export default TMiddleware;

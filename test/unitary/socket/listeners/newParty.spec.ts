@@ -28,26 +28,26 @@ describe('newParty', () => {
   });
 
   describe('when player is not in another room', () => {
-    it('loads player', () => {
-      newParty(ioMock, socketMock, storageMock, {});
+    it('loads player', async () => {
+      await newParty(ioMock, socketMock, storageMock, {});
       expect(storageMock.get).toHaveBeenCalledWith('players', socketMock.id);
     });
 
-    it('stores new game party', () => {
-      newParty(ioMock, socketMock, storageMock, {});
+    it('stores new game party', async () => {
+      await newParty(ioMock, socketMock, storageMock, {});
       expect(storageMock.store).toHaveBeenCalledWith(
         'parties',
         expect.any(Party)
       );
     });
 
-    it('puts socket in room', () => {
-      newParty(ioMock, socketMock, storageMock, {});
+    it('puts socket in room', async () => {
+      await newParty(ioMock, socketMock, storageMock, {});
       expect(socketMock.join).toHaveBeenCalledWith(expect.any(String));
     });
 
-    it('sends back room id', () => {
-      newParty(ioMock, socketMock, storageMock, {});
+    it('sends back room id', async () => {
+      await newParty(ioMock, socketMock, storageMock, {});
       expect(socketMock.emit).toHaveBeenCalledWith(
         'party-id',
         expect.any(String)
@@ -56,9 +56,9 @@ describe('newParty', () => {
   });
 
   describe('when player already is in another room', () => {
-    it('emits and inRoom error', () => {
+    it('emits and inRoom error', async () => {
       playerMock.partyId = '123';
-      newParty(ioMock, socketMock, storageMock, {});
+      await newParty(ioMock, socketMock, storageMock, {});
       expect(socketMock.emit).toHaveBeenCalledWith('error', errorCodes.inParty);
     });
   });

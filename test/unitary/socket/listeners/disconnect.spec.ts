@@ -1,5 +1,4 @@
 import { Server, Socket } from 'socket.io';
-import { mocked } from 'ts-jest/utils';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import disconnect from '~/socket/listeners/disconnect';
 import Player from '~/socket/models/Player';
@@ -12,6 +11,7 @@ describe('disconnect', () => {
   let storageMock: ISocketStorage;
   let partyMock: Party;
   let playerMock: Player;
+  let player2Mock: Player;
 
   beforeEach(() => {
     socketMock = <any>{
@@ -19,20 +19,23 @@ describe('disconnect', () => {
       emit: jest.fn(),
     };
 
-    playerMock = <any>{
-      id: socketMock.id,
-      partyId: '123',
-    };
+    playerMock = new Player(socketMock.id, 'player');
+    playerMock.partyId = '123456';
+
+    player2Mock = new Player('567789', 'player 2');
+    player2Mock.partyId = '123456';
+
+    partyMock = new Party();
+    partyMock.id = playerMock.partyId;
+    partyMock.playerIds = [playerMock.id, player2Mock.id];
+    jest.spyOn(partyMock, 'sendToAll').mockImplementation();
 
     storageMock = <any>{
       remove: jest.fn(),
-      get: jest.fn(key => (key === 'players' ? playerMock : partyMock)),
-    };
-
-    partyMock = <any>{
-      id: playerMock.id,
-      players: jest.fn(() => [playerMock, { id: 'def' }]),
-      sendToAll: jest.fn(),
+      get: jest.fn((key, id) => {
+        if (key === 'parties') return partyMock;
+        return id === playerMock.id ? playerMock : player2Mock;
+      }),
     };
   });
 
@@ -43,20 +46,44 @@ describe('disconnect', () => {
 
   describe('when player is in party', () => {
     describe('and there are other players in party', () => {
-      it('emits player leave event to remaining players', async () => {
+      describe("and it's the party owner", () => {
+        it('sets next player to be the party owner', async () => {
+          partyMock.playerIds = [playerMock.id, player2Mock.id];
+          jest
+            .spyOn(partyMock, 'players')
+            .mockImplementation(async () => [playerMock, player2Mock]);
+
+          await disconnect(ioMock, socketMock, storageMock, {});
+
+          expect(partyMock.ownerId).toBe(player2Mock.id);
+        });
+      });
+
+      it('emits player-leave event to remaining players', async () => {
         await disconnect(ioMock, socketMock, storageMock, {});
+        const expectedResponse = {
+          ownerId: partyMock.ownerId,
+          allPlayers: [player2Mock],
+          player: playerMock,
+        };
+
         expect(partyMock.sendToAll).toHaveBeenCalledWith(
           ioMock,
           'player-leave',
-          playerMock
+          expectedResponse
         );
       });
     });
 
     describe('and there are not other players in party', () => {
       it('deletes party', async () => {
-        mocked(partyMock.players).mockImplementation(async () => [playerMock]);
+        partyMock.playerIds = [playerMock.id];
+        jest
+          .spyOn(partyMock, 'players')
+          .mockImplementation(async () => [playerMock]);
+
         await disconnect(ioMock, socketMock, storageMock, {});
+
         expect(storageMock.remove).toHaveBeenCalledWith(
           'parties',
           partyMock.id

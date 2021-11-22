@@ -26,9 +26,17 @@ const joinParty: TListener = async (io, socket, storage, { partyId }) => {
   }
 
   player.partyId = party.id;
+  party.playerIds.push(player.id);
   socket.join(party.id);
   socket.emit('party-id', party.id);
-  party.sendToAll(io, 'player-join', await party.players(storage));
+
+  const data = {
+    ownerId: party.ownerId,
+    allPlayers: await party.players(storage),
+    player,
+  };
+
+  party.sendToAll(io, 'player-join', data);
 };
 
 export default joinParty;

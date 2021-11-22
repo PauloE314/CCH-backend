@@ -12,6 +12,7 @@ const newParty: TListener = async (_io, socket, storage) => {
     await storage.store('parties', party);
 
     player.partyId = party.id;
+    party.playerIds.push(player.id);
     socket.join(party.id);
     socket.emit('party-id', party.id);
   } else {

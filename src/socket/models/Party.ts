@@ -1,15 +1,20 @@
 import { Server, Socket } from 'socket.io';
 import { generateRandomString } from '~/utils';
 import { ISocketStorage } from '../storage/ISocketStorage';
-import Player from './Player';
 
 export default class Party {
   public id: string;
   public inGame: boolean;
+  public playerIds: string[];
+
+  public get ownerId(): string {
+    return this.playerIds[0];
+  }
 
   constructor() {
     this.id = generateRandomString(6);
     this.inGame = false;
+    this.playerIds = [];
   }
 
   sendToAll(io: Server, eventName: string, content?: any) {
@@ -21,7 +26,10 @@ export default class Party {
   }
 
   async players(storage: ISocketStorage) {
-    const allPlayers: Player[] = await storage.getAll('players');
-    return allPlayers.filter(({ partyId }) => partyId === this.id);
+    const all = await Promise.all(
+      this.playerIds.map(id => storage.get('players', id))
+    );
+
+    return all.filter(player => player !== undefined);
   }
 }

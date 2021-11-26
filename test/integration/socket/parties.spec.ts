@@ -22,12 +22,15 @@ describe('Parties', () => {
       'joins party and sends its id',
       async ({ client, clientFactory, done }) => {
         client.on('player-join', data => {
-          expect(data).toEqual(
-            expect.arrayContaining([
+          expect(data).toEqual({
+            ownerId: expect.any(String),
+            allPlayers: expect.arrayContaining([
               expect.objectContaining({ username: 'Player' }),
               expect.objectContaining({ username: 'Incoming' }),
-            ])
-          );
+            ]),
+            player: expect.objectContaining({ username: 'Incoming' }),
+          });
+
           done();
         });
 

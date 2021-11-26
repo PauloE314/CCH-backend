@@ -1,6 +1,7 @@
 import { Server as SocketServer } from 'socket.io';
 
 import setupPlayer from './middlewares/setupPlayer';
+import setupParty from './middlewares/setupParty';
 
 import { ISocketStorage } from './storage/ISocketStorage';
 import disconnect from './listeners/disconnect';
@@ -15,6 +16,7 @@ export default function setupWebSockets(
   storage.clearAll();
 
   io.use((socket, next) => setupPlayer(io, socket, storage, next));
+  io.use((socket, next) => setupParty(io, socket, storage, next));
 
   io.on('connection', socket => {
     socket.on('disconnect', data => disconnect(io, socket, storage, data));

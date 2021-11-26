@@ -1,13 +1,15 @@
 import { Server, Socket } from 'socket.io';
+import { mocked } from 'ts-jest/utils';
 import Party from '~/socket/models/Party';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
+import playerFactory from '~/../test/factories/player';
 
 describe('Party', () => {
   let storageMock: ISocketStorage;
   let party: Party;
 
   beforeEach(() => {
-    storageMock = <any>{ getAll: jest.fn(() => []) };
+    storageMock = <any>{ get: jest.fn(() => []) };
     party = new Party();
   });
 
@@ -43,23 +45,33 @@ describe('Party', () => {
   });
 
   describe('#players', () => {
-    it('calls SocketStorage#getAll', async () => {
-      await party.players(storageMock);
-      expect(storageMock.getAll).toHaveBeenCalledWith('players');
+    describe('when there are players in the party', () => {
+      it('returns correct players', async () => {
+        mocked(storageMock.get).mockImplementation(async (_, id) =>
+          playerFactory({ id, partyId: party.id })
+        );
+
+        party.playerIds = ['123', '456'];
+        const result = await party.players(storageMock);
+        expect(result).toEqual([
+          expect.objectContaining({
+            id: '123',
+            partyId: party.id,
+          }),
+          expect.objectContaining({
+            id: '456',
+            partyId: party.id,
+          }),
+        ]);
+      });
     });
 
-    it('returns correct players', async () => {
-      storageMock.getAll = <any>(
-        jest.fn(() => [
-          { partyId: party.id },
-          { partyId: party.id },
-          { partyId: '123' },
-          { partyId: '123' },
-        ])
-      );
-
-      const result = await party.players(storageMock);
-      expect(result).toEqual([{ partyId: party.id }, { partyId: party.id }]);
+    describe('when there are no players in party', () => {
+      it('returns an empty list', async () => {
+        party.playerIds = [];
+        const response = await party.players(storageMock);
+        expect(response).toEqual([]);
+      });
     });
   });
 });

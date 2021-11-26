@@ -4,6 +4,7 @@ import newParty from '~/socket/listeners/newParty';
 import Player from '~/socket/models/Player';
 import { errorCodes } from '~/config/settings';
 import Party from '~/socket/models/Party';
+import playerFactory from '~/../test/factories/player';
 
 describe('newParty', () => {
   const ioMock = <Server>{};
@@ -13,7 +14,7 @@ describe('newParty', () => {
   let storageMock: ISocketStorage;
 
   beforeEach(() => {
-    playerMock = <any>{};
+    playerMock = playerFactory({ partyId: '' });
 
     socketMock = <any>{
       id: '123456',

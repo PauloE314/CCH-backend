@@ -4,6 +4,7 @@ import Party from '~/socket/models/Party';
 import Player from '~/socket/models/Player';
 import chatMessage from '~/socket/listeners/chatMessage';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
+import playerFactory from '~/../test/factories/player';
 
 describe('chatMessage', () => {
   const ioMock = <Server>{};
@@ -17,7 +18,7 @@ describe('chatMessage', () => {
   beforeEach(() => {
     socketMock = <any>{ emit: jest.fn() };
     partyMock = <any>{ id: '123', sendToAllExcept: jest.fn() };
-    playerMock = <any>{ partyId: partyMock.id };
+    playerMock = playerFactory({ partyId: partyMock.id });
     storageMock = <any>{
       get: jest.fn(key => (key === 'players' ? playerMock : partyMock)),
     };

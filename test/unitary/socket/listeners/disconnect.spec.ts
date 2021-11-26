@@ -1,8 +1,9 @@
 import { Server, Socket } from 'socket.io';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
 import disconnect from '~/socket/listeners/disconnect';
-import Player from '~/socket/models/Player';
 import Party from '~/socket/models/Party';
+import Player from '~/socket/models/Player';
+import playerFactory from '~/../test/factories/player';
 
 describe('disconnect', () => {
   const ioMock = <Server>{};
@@ -19,11 +20,12 @@ describe('disconnect', () => {
       emit: jest.fn(),
     };
 
-    playerMock = new Player(socketMock.id, 'player');
-    playerMock.partyId = '123456';
-
-    player2Mock = new Player('567789', 'player 2');
-    player2Mock.partyId = '123456';
+    playerMock = playerFactory({ id: socketMock.id });
+    player2Mock = playerFactory({
+      id: '567789',
+      username: 'player 2',
+      partyId: playerMock.partyId,
+    });
 
     partyMock = new Party();
     partyMock.id = playerMock.partyId;

@@ -4,18 +4,33 @@ import Party from '~/socket/models/Party';
 import Player from '~/socket/models/Player';
 import joinParty from '~/socket/listeners/joinParty';
 import { ISocketStorage } from '~/socket/storage/ISocketStorage';
+import playerFactory from '~/../test/factories/player';
 
 describe('joinParty', () => {
   const ioMock = <Server>{};
-  const data = { partyId: '123' };
+  const data = { partyId: '' };
 
+  let ownerMock: Player;
   let playerMock: Player;
   let socketMock: Socket;
   let storageMock: ISocketStorage;
   let partyMock: Party;
 
   beforeEach(() => {
-    playerMock = <any>{};
+    playerMock = playerFactory({ partyId: '' });
+    ownerMock = playerFactory({ partyId: '' });
+
+    partyMock = new Party();
+    data.partyId = partyMock.id;
+    ownerMock.partyId = partyMock.id;
+    partyMock.playerIds = [ownerMock.id];
+    jest.spyOn(partyMock, 'sendToAll').mockImplementation();
+    jest.spyOn(partyMock, 'players').mockImplementation(async () => {
+      return partyMock.playerIds.length === 1
+        ? [ownerMock]
+        : [ownerMock, playerMock];
+    });
+
     storageMock = <any>{
       get: jest.fn(type => (type === 'parties' ? partyMock : playerMock)),
     };
@@ -23,12 +38,6 @@ describe('joinParty', () => {
     socketMock = <any>{
       join: jest.fn(),
       emit: jest.fn(),
-    };
-
-    partyMock = <any>{
-      id: data.partyId,
-      players: jest.fn(() => []),
-      sendToAll: jest.fn(),
     };
   });
 
@@ -39,12 +48,18 @@ describe('joinParty', () => {
         expect(socketMock.join).toHaveBeenCalledWith(partyMock.id);
       });
 
-      it('emits player joined event to party players', async () => {
+      it('emits player-join event to party players', async () => {
+        const expectedResult = {
+          ownerId: partyMock.ownerId,
+          allPlayers: [ownerMock, playerMock],
+          player: playerMock,
+        };
+
         await joinParty(ioMock, socketMock, storageMock, data);
         expect(partyMock.sendToAll).toHaveBeenCalledWith(
           ioMock,
           'player-join',
-          expect.any(Array)
+          expectedResult
         );
       });
     });

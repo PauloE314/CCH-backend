@@ -1,11 +1,5 @@
-import { Server, Socket } from 'socket.io';
-import { ISocketStorage } from '../storage/ISocketStorage';
+import { GameSocket } from '../GameSocket';
 
-type TListener = (
-  io: Server,
-  socket: Socket,
-  storage: ISocketStorage,
-  data: any
-) => Promise<any>;
+type TListener = (gameSocket: GameSocket) => any;
 
 export default TListener;

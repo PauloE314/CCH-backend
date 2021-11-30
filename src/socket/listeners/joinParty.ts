@@ -1,42 +1,44 @@
 import { errorCodes, gameSettings } from '~/config/settings';
-import TListener from './TListener';
+import { GameEvent } from '../GameEvent';
+import { GameSocket } from '../GameSocket';
 
 const { maxPlayerAmount } = gameSettings;
 
-const joinParty: TListener = async (io, socket, storage, { partyId }) => {
-  const player = await storage.get('players', socket.id);
-  const party = await storage.get('parties', partyId);
+const joinParty = ({ io, socket, storage }: GameSocket) =>
+  socket.on(GameEvent.JoinParty, async ({ partyId }) => {
+    const player = await storage.get('players', socket.id);
+    const party = await storage.get('parties', partyId);
 
-  if (!player) return;
+    if (!player) return;
 
-  if (!party) {
-    socket.emit('error', errorCodes.inexistentParty);
-    return;
-  }
+    if (!party) {
+      socket.emit('error', errorCodes.inexistentParty);
+      return;
+    }
 
-  if (player.partyId) {
-    socket.emit('error', errorCodes.inParty);
-    return;
-  }
+    if (player.partyId) {
+      socket.emit(GameEvent.Error, errorCodes.inParty);
+      return;
+    }
 
-  const playerAmount = (await party.players(storage)).length;
-  if (playerAmount > maxPlayerAmount) {
-    socket.emit('error', errorCodes.PartyTooLarge);
-    return;
-  }
+    const playerAmount = (await party.players(storage)).length;
+    if (playerAmount > maxPlayerAmount) {
+      socket.emit(GameEvent.Error, errorCodes.PartyTooLarge);
+      return;
+    }
 
-  player.partyId = party.id;
-  party.playerIds.push(player.id);
-  socket.join(party.id);
-  socket.emit('party-id', party.id);
+    player.partyId = party.id;
+    party.playerIds.push(player.id);
+    socket.join(party.id);
+    socket.emit('party-id', party.id);
 
-  const data = {
-    ownerId: party.ownerId,
-    allPlayers: await party.players(storage),
-    player,
-  };
+    const data = {
+      ownerId: party.ownerId,
+      allPlayers: await party.players(storage),
+      player,
+    };
 
-  party.sendToAll(io, 'player-join', data);
-};
+    party.sendToAll(io, GameEvent.PlayerJoin, data);
+  });
 
 export default joinParty;

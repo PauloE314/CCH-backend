@@ -1,13 +1,17 @@
-import Player from '~/socket/models/Player';
+import { Player } from '~/socket/models/Player';
 import { generateRandomString as random } from '~/utils';
 
-interface IData {
+type PlayerFactoryParams = {
   id?: string;
   username?: string;
   partyId?: string;
-}
+};
 
-export default ({ id, username, partyId }: IData = {}) => {
+const playerFactory = ({
+  id,
+  username,
+  partyId,
+}: PlayerFactoryParams = {}): Player => {
   const playerId = id === undefined ? random(6) : id;
   const playerUsername = username === undefined ? random(6) : username;
   const playerPartyId = partyId === undefined ? random(6) : partyId;
@@ -17,3 +21,5 @@ export default ({ id, username, partyId }: IData = {}) => {
 
   return player;
 };
+
+export { playerFactory };

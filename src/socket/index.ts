@@ -1,67 +1,30 @@
 import { Server as SocketServer } from 'socket.io';
-import {
-  GamePubSub,
-  GameSocket,
-  makeEmitter,
-  makeListener,
-} from './GameSocket';
 
-import { ISocketStorage } from './storage/ISocketStorage';
+import { GameStorage } from './storage';
+import { Player } from './models/Player';
+import { getUsername } from './helpers/socket';
 
-import setupPlayer from './middlewares/setupPlayer';
-import disconnect from './listeners/disconnect';
-import { GameEvent } from './GameEvent';
+import { disconnect } from './listeners/disconnect';
+import { EventManager } from './Events';
+import { nameValidation } from './middlewares/nameValidation';
 
 export default async function setupWebSockets(
   io: SocketServer,
-  storage: ISocketStorage
+  storage: GameStorage
 ) {
-  storage.clearAll();
+  storage.drop();
 
-  io.use((socket, next) => setupPlayer(io, socket, storage, next));
-  // io.use((socket, next) => setupParty(io, socket, storage, next));
+  io.use((socket, next) => nameValidation({ io, socket, storage }, next));
 
-  return new Promise<{
-    gameSocket: GameSocket;
-    pubSub: GamePubSub;
-  }>(resolve => {
-    io.on('connection', socket => {
-      const gameSocket = { socket, io, storage };
-      disconnect(gameSocket);
-
-      resolve({
-        gameSocket,
-        pubSub: {
-          listen: makeListener(gameSocket),
-          emit: makeEmitter(gameSocket),
-        },
-      });
+  io.on('connection', socket => {
+    const player = new Player(socket.id, getUsername(socket));
+    const eventManager = new EventManager({
+      io,
+      player,
+      socket,
+      storage,
     });
+
+    eventManager.listen(disconnect);
   });
 }
-
-namespace GameWrapper {
-  let pubSub: GamePubSub;
-  let gameSocket: GameSocket;
-
-  export const build = async (io: SocketServer, storage: ISocketStorage) => {
-    const startup = await setupWebSockets(io, storage);
-
-    pubSub = startup.pubSub;
-    gameSocket = startup.gameSocket;
-  };
-
-  export const newGame = () => {
-    const game = new Game(gameSocket, gameListen);
-    // pubSub.listen(sendResponse);
-    game.start();
-  };
-
-  export const joinParty = () => {
-    pubSub.listen(joinParty, chatMessage);
-  };
-
-  export const newParty = () => {};
-}
-
-// -------------------------------------

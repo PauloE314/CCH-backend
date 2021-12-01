@@ -1,4 +1,4 @@
-export default class Player {
+class Player {
   public id: string;
   public username: string;
   public partyId: string;
@@ -9,3 +9,5 @@ export default class Player {
     this.partyId = '';
   }
 }
+
+export { Player };

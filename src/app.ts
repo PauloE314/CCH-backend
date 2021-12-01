@@ -6,7 +6,7 @@ import 'reflect-metadata';
 
 import routes from './web/routes';
 import setupWebSockets from '~/socket';
-import InMemoryStorage from '~/socket/storage/inMemoryStorage';
+import { GameStorage } from '~/socket/storage';
 
 export default class Application {
   express: Express;
@@ -24,7 +24,7 @@ export default class Application {
     this.express.use(cors());
     this.express.use(routes);
 
-    setupWebSockets(this.io, InMemoryStorage);
+    setupWebSockets(this.io, new GameStorage());
   }
 
   run(port: Number | String, cb?: () => void) {

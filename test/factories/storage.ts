@@ -3,8 +3,8 @@ import { DataMap } from '~/socket/storage/DataMap';
 
 type StorageFactoryParams = {};
 
-const storageFactory = ({}: StorageFactoryParams = {}): Storage => {
-  const storage = new Storage();
+const storageFactory = ({}: StorageFactoryParams = {}): GameStorage => {
+  const storage = new GameStorage();
   jest.spyOn(storage, 'drop');
 
   Object.values(storage).forEach(value => {

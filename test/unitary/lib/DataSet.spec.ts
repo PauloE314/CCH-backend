@@ -1,4 +1,4 @@
-import { DataMap } from '~/socket/storage/DataMap';
+import { DataMap } from '~/lib/DataMap';
 
 describe('DataMap', () => {
   let dataMap: DataMap<any>;

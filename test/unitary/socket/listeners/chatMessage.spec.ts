@@ -1,50 +1,38 @@
-import { Server, Socket } from 'socket.io';
-import { errorCodes } from '~/config/settings';
-import Party from '~/socket/models/Party';
-import Player from '~/socket/models/Player';
-import chatMessage from '~/socket/listeners/chatMessage';
-import { ISocketStorage } from '~/socket/storage/ISocketStorage';
-import playerFactory from '~/../test/factories/player';
+import { gameContextFactory } from '~/../test/factories/gameContext';
+import { EventLabels } from '~/socket/EventManager';
+import { GameContext } from '~/socket/GameContext';
+import { runListener } from '~test/helpers/unit';
+import { chatMessage } from '~/socket/listeners/chatMessage';
 
 describe('chatMessage', () => {
-  const ioMock = <Server>{};
-  const data = { message: 'Hello World!' };
-
-  let socketMock: Socket;
-  let storageMock: ISocketStorage;
-  let playerMock: Player;
-  let partyMock: Party;
+  let context: GameContext;
+  let data: { message: string };
 
   beforeEach(() => {
-    socketMock = <any>{ emit: jest.fn() };
-    partyMock = <any>{ id: '123', sendToAllExcept: jest.fn() };
-    playerMock = playerFactory({ partyId: partyMock.id });
-    storageMock = <any>{
-      get: jest.fn(key => (key === 'players' ? playerMock : partyMock)),
-    };
+    context = gameContextFactory();
+    data = { message: 'Hello World' };
   });
 
-  describe('when player is in party', () => {
-    it('sends chat message event for all except the player', async () => {
-      await chatMessage(ioMock, socketMock, storageMock, data);
-      expect(partyMock.sendToAllExcept).toHaveBeenCalledWith(
-        socketMock,
-        'chat-message',
-        data.message
-      );
+  it('calls Socket#on with correct label and callback', () => {
+    chatMessage(context);
+    expect(context.socket.on).toHaveBeenCalledWith(
+      EventLabels.ChatMessage,
+      expect.any(Function)
+    );
+  });
+
+  describe('when chatMessage is called', () => {
+    beforeEach(() => {
+      context.player.partyId = '123456';
+      runListener(context, chatMessage, data);
     });
-  });
 
-  describe('when player is not in party', () => {
-    it('emits not in party error', async () => {
-      playerMock.partyId = '';
-      partyMock = <any>null;
-
-      await chatMessage(ioMock, socketMock, storageMock, data);
-      expect(socketMock.emit).toHaveBeenCalledWith(
-        'error',
-        errorCodes.notInParty
-      );
+    it('broadcasts ChatMessage event', () => {
+      expect(context.eventManager.broadcast).toHaveBeenLastCalledWith({
+        label: EventLabels.ChatMessage,
+        payload: { message: data.message },
+        to: context.player.partyId,
+      });
     });
   });
 });

@@ -6,7 +6,7 @@ import connect, {
   ManagerOptions,
 } from 'socket.io-client';
 import setupWebSockets from '~/socket';
-import { GameStorage } from '~/socket/storage';
+import { GameStorage } from '~/socket/GameStorage';
 import { delay } from '~/utils';
 
 export function startWebSocketsTestServer() {

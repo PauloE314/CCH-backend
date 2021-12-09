@@ -1,44 +1,34 @@
-import { errorCodes, gameSettings } from '~/config/settings';
-import { GameEvent } from '../GameEvent';
-import { GameSocket } from '../GameSocket';
+import { chatMessage } from './chatMessage';
+import { ErrorCodes, EventLabels } from '../EventManager';
+import { Listener, serializeParty } from './index';
+import { leaveParty } from './leaveParty';
 
-const { maxPlayerAmount } = gameSettings;
-
-const joinParty = ({ io, socket, storage }: GameSocket) =>
-  socket.on(GameEvent.JoinParty, async ({ partyId }) => {
-    const player = await storage.get('players', socket.id);
-    const party = await storage.get('parties', partyId);
-
-    if (!player) return;
+const joinParty: Listener = ({ player, socket, storage, eventManager }) => {
+  socket.on(EventLabels.JoinParty, ({ partyId }) => {
+    const party = storage.parties.get(partyId);
 
     if (!party) {
-      socket.emit('error', errorCodes.inexistentParty);
-      return;
-    }
-
-    if (player.partyId) {
-      socket.emit(GameEvent.Error, errorCodes.inParty);
-      return;
-    }
-
-    const playerAmount = (await party.players(storage)).length;
-    if (playerAmount > maxPlayerAmount) {
-      socket.emit(GameEvent.Error, errorCodes.PartyTooLarge);
-      return;
+      return eventManager.error(ErrorCodes.inexistentParty);
     }
 
     player.partyId = party.id;
-    party.playerIds.push(player.id);
+    party.players.push(player);
     socket.join(party.id);
-    socket.emit('party-id', party.id);
 
-    const data = {
-      ownerId: party.ownerId,
-      allPlayers: await party.players(storage),
-      player,
-    };
+    eventManager.broadcast({
+      label: EventLabels.PlayerJoin,
+      payload: player,
+      to: party,
+    });
 
-    party.sendToAll(io, GameEvent.PlayerJoin, data);
+    eventManager.send({
+      label: EventLabels.JoinParty,
+      payload: serializeParty(party),
+    });
+
+    eventManager.remove(EventLabels.CreateParty, EventLabels.JoinParty);
+    eventManager.listen(leaveParty, chatMessage);
   });
+};
 
-export default joinParty;
+export { joinParty };

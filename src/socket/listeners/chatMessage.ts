@@ -1,16 +1,14 @@
-import { errorCodes } from '~/config/settings';
-import { GameEvent } from '../GameEvent';
-import TListener from './TListener';
+import { EventLabels } from '../EventManager';
+import { Listener } from './index';
 
-const chatMessage: TListener = ({ socket, storage }) =>
-  socket.on(GameEvent.ChatMessage, async message => {
-    const player = await storage.get('players', socket.id);
-    const party = await storage.get('parties', player?.id || '');
-
-    if (!player) return;
-
-    if (party) party.sendToAllExcept(socket, GameEvent.ChatMessage, message);
-    else socket.emit('error', errorCodes.notInParty);
+const chatMessage: Listener = ({ socket, player, eventManager }) => {
+  socket.on(EventLabels.ChatMessage, ({ message }) => {
+    eventManager.broadcast({
+      label: EventLabels.ChatMessage,
+      payload: { message },
+      to: player.partyId,
+    });
   });
+};
 
-export default chatMessage;
+export { chatMessage };

@@ -1,90 +1,109 @@
-import { Server, Socket } from 'socket.io';
-import { errorCodes } from '~/config/settings';
-import Party from '~/socket/models/Party';
-import Player from '~/socket/models/Player';
-import joinParty from '~/socket/listeners/joinParty';
-import { ISocketStorage } from '~/socket/storage/ISocketStorage';
-import playerFactory from '~/../test/factories/player';
+import { mocked } from 'ts-jest/utils';
+import { gameContextFactory } from '~/../test/factories/gameContext';
+import { Party } from '~/socket/models/Party';
+import { ErrorCodes, EventLabels } from '~/socket/EventManager';
+import { GameContext } from '~/socket/GameContext';
+import { joinParty } from '~/socket/listeners/joinParty';
+import { partyFactory } from '~test/factories/party';
+import { runListener } from '~test/helpers/unit';
+import { leaveParty } from '~/socket/listeners/leaveParty';
+import { chatMessage } from '~/socket/listeners/chatMessage';
 
 describe('joinParty', () => {
-  const ioMock = <Server>{};
-  const data = { partyId: '' };
-
-  let ownerMock: Player;
-  let playerMock: Player;
-  let socketMock: Socket;
-  let storageMock: ISocketStorage;
-  let partyMock: Party;
+  let context: GameContext;
+  let data: { partyId: string };
 
   beforeEach(() => {
-    playerMock = playerFactory({ partyId: '' });
-    ownerMock = playerFactory({ partyId: '' });
-
-    partyMock = new Party();
-    data.partyId = partyMock.id;
-    ownerMock.partyId = partyMock.id;
-    partyMock.playerIds = [ownerMock.id];
-    jest.spyOn(partyMock, 'sendToAll').mockImplementation();
-    jest.spyOn(partyMock, 'players').mockImplementation(async () => {
-      return partyMock.playerIds.length === 1
-        ? [ownerMock]
-        : [ownerMock, playerMock];
-    });
-
-    storageMock = <any>{
-      get: jest.fn(type => (type === 'parties' ? partyMock : playerMock)),
-    };
-
-    socketMock = <any>{
-      join: jest.fn(),
-      emit: jest.fn(),
-    };
+    context = gameContextFactory();
+    data = { partyId: '123' };
   });
 
-  describe('when client is not in another party', () => {
+  it('calls Socket#on with correct label and callback', () => {
+    joinParty(context);
+    expect(context.socket.on).toHaveBeenCalledWith(
+      EventLabels.JoinParty,
+      expect.any(Function)
+    );
+  });
+
+  describe('when JoinParty is called', () => {
     describe('and the party exists', () => {
-      it('puts client in the party', async () => {
-        await joinParty(ioMock, socketMock, storageMock, data);
-        expect(socketMock.join).toHaveBeenCalledWith(partyMock.id);
+      let party: Party;
+
+      beforeEach(() => {
+        party = partyFactory({ id: data.partyId });
+        mocked(context.storage.parties.get).mockImplementation(() => party);
+
+        runListener(context, joinParty, data);
       });
 
-      it('emits player-join event to party players', async () => {
-        const expectedResult = {
-          ownerId: partyMock.ownerId,
-          allPlayers: [ownerMock, playerMock],
-          player: playerMock,
-        };
+      it('sets Player#partyId to the correct value', () => {
+        expect(context.player.partyId).toBe(party.id);
+      });
 
-        await joinParty(ioMock, socketMock, storageMock, data);
-        expect(partyMock.sendToAll).toHaveBeenCalledWith(
-          ioMock,
-          'player-join',
-          expectedResult
+      it('stores Player in Party#players property', () => {
+        expect(party.players).toEqual([context.player]);
+      });
+
+      it('joins socket to party room', () => {
+        expect(context.socket.join).toHaveBeenCalledWith(party.id);
+      });
+
+      it('sends JoinParty event', () => {
+        expect(context.eventManager.send).toHaveBeenCalledWith({
+          label: EventLabels.JoinParty,
+          payload: expect.objectContaining({
+            id: party.id,
+            players: [expect.objectContaining({ id: context.player.id })],
+          }),
+        });
+      });
+
+      it('broadcasts PlayerJoin event', () => {
+        const playerExpectation = expect.objectContaining({
+          id: context.player.id,
+          username: context.player.username,
+        });
+
+        expect(context.eventManager.broadcast).toHaveBeenCalledWith({
+          label: EventLabels.PlayerJoin,
+          payload: playerExpectation,
+          to: expect.objectContaining({
+            id: party.id,
+            players: [playerExpectation],
+          }),
+        });
+      });
+
+      it('removes CreateParty and JoinParty events', () => {
+        expect(context.eventManager.remove).toHaveBeenCalledWith(
+          EventLabels.CreateParty,
+          EventLabels.JoinParty
+        );
+      });
+
+      it('adds LeaveParty and ChatMessage events', () => {
+        expect(context.eventManager.listen).toHaveBeenCalledWith(
+          leaveParty,
+          chatMessage
         );
       });
     });
 
-    describe('and the party does not exist', () => {
-      it('emits inexistentParty error', async () => {
-        storageMock.get = <any>(
-          jest.fn(key => (key === 'players' ? playerMock : undefined))
+    describe('and the party does not exists', () => {
+      beforeEach(() => {
+        mocked(context.storage.parties.get).mockImplementation(
+          () => undefined as any
         );
-
-        await joinParty(ioMock, socketMock, storageMock, data);
-        expect(socketMock.emit).toHaveBeenCalledWith(
-          'error',
-          errorCodes.inexistentParty
-        );
+        runListener(context, joinParty, data);
       });
-    });
-  });
 
-  describe('when client is in another party', () => {
-    it('emits inParty error', async () => {
-      playerMock.partyId = '12345';
-
-      await joinParty(ioMock, socketMock, storageMock, data);
-      expect(socketMock.emit).toHaveBeenCalledWith('error', errorCodes.inParty);
+      it('sends proper error message', () => {
+        expect(context.eventManager.send).toHaveBeenCalledWith({
+          label: 'error',
+          payload: { code: ErrorCodes.inexistentParty },
+        });
+      });
     });
   });
 });

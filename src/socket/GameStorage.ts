@@ -1,6 +1,7 @@
-import { Party } from '../models/Party';
-import { Player } from '../models/Player';
-import { DataMap } from './DataMap';
+import { Party } from './models/Party';
+import { Player } from './models/Player';
+import { DataMap } from '~/lib/DataMap';
+
 class GameStorage {
   public players: DataMap<Player>;
   public parties: DataMap<Party>;

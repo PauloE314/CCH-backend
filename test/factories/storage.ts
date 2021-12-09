@@ -1,5 +1,5 @@
-import { GameStorage } from '~/socket/storage';
-import { DataMap } from '~/socket/storage/DataMap';
+import { GameStorage } from '~/socket/GameStorage';
+import { DataMap } from '~/lib/DataMap';
 
 type StorageFactoryParams = {};
 

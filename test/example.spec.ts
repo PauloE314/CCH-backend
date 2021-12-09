@@ -1,4 +1,4 @@
-import { testWS } from './helpers';
+import { testWS } from './helpers/integration';
 
 // This is an example of how to write a test with the socket.io api.
 // This kind of approach is intended to be used in integration tests, where is needed to mock the least possible.

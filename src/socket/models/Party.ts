@@ -1,18 +1,16 @@
 import { generateRandomString } from '~/utils';
-
+import { Player } from './Player';
 class Party {
   public id: string;
-  public inGame: boolean;
-  public playerIds: string[];
+  public players: Player[];
 
-  public get ownerId(): string {
-    return this.playerIds[0];
+  public get owner(): Player {
+    return this.players[0];
   }
 
   constructor() {
     this.id = generateRandomString(6);
-    this.inGame = false;
-    this.playerIds = [];
+    this.players = [];
   }
 }
 

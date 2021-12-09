@@ -1,96 +1,100 @@
-import { Server, Socket } from 'socket.io';
-import { ISocketStorage } from '~/socket/storage/ISocketStorage';
-import disconnect from '~/socket/listeners/disconnect';
-import Party from '~/socket/models/Party';
-import Player from '~/socket/models/Player';
-import playerFactory from '~/../test/factories/player';
+import { mocked } from 'ts-jest/utils';
+import { gameContextFactory } from '~/../test/factories/gameContext';
+import { Party } from '~/socket/models/Party';
+import { ErrorCodes, EventLabels } from '~/socket/EventManager';
+import { GameContext } from '~/socket/GameContext';
+import { joinParty } from '~/socket/listeners/joinParty';
+import { partyFactory } from '~test/factories/party';
+import { runListener } from '~test/helpers/unit';
+import { leaveParty } from '~/socket/listeners/leaveParty';
+import { chatMessage } from '~/socket/listeners/chatMessage';
+import { Player } from '~/socket/models/Player';
+import { playerFactory } from '~test/factories/player';
+import { createParty } from '~/socket/listeners/createParty';
+import { disconnect } from '~/socket/listeners/disconnect';
 
 describe('disconnect', () => {
-  const ioMock = <Server>{};
-
-  let socketMock: Socket;
-  let storageMock: ISocketStorage;
-  let partyMock: Party;
-  let playerMock: Player;
-  let player2Mock: Player;
+  let context: GameContext;
+  let data: {};
 
   beforeEach(() => {
-    socketMock = <any>{
-      id: '123456789',
-      emit: jest.fn(),
-    };
-
-    playerMock = playerFactory({ id: socketMock.id });
-    player2Mock = playerFactory({
-      id: '567789',
-      username: 'player 2',
-      partyId: playerMock.partyId,
-    });
-
-    partyMock = new Party();
-    partyMock.id = playerMock.partyId;
-    partyMock.playerIds = [playerMock.id, player2Mock.id];
-    jest.spyOn(partyMock, 'sendToAll').mockImplementation();
-
-    storageMock = <any>{
-      remove: jest.fn(),
-      get: jest.fn((key, id) => {
-        if (key === 'parties') return partyMock;
-        return id === playerMock.id ? playerMock : player2Mock;
-      }),
-    };
+    data = {};
+    context = gameContextFactory();
   });
 
-  it('removes disconnecting player from storage', async () => {
-    await disconnect(ioMock, socketMock, storageMock, {});
-    expect(storageMock.remove).toHaveBeenCalledWith('players', socketMock.id);
+  it('calls Socket#on with correct label and callback', () => {
+    disconnect(context);
+    expect(context.socket.on).toHaveBeenCalledWith(
+      EventLabels.Disconnect,
+      expect.any(Function)
+    );
   });
 
-  describe('when player is in party', () => {
-    describe('and there are other players in party', () => {
-      describe("and it's the party owner", () => {
-        it('sets next player to be the party owner', async () => {
-          partyMock.playerIds = [playerMock.id, player2Mock.id];
-          jest
-            .spyOn(partyMock, 'players')
-            .mockImplementation(async () => [playerMock, player2Mock]);
+  describe('when Disconnect is called', () => {
+    describe('and the player is in a party', () => {
+      let party: Party;
 
-          await disconnect(ioMock, socketMock, storageMock, {});
+      beforeEach(() => {
+        party = partyFactory();
+        party.players = [context.player];
+        context.player.partyId = party.id;
 
-          expect(partyMock.ownerId).toBe(player2Mock.id);
+        mocked(context.storage.parties.get).mockImplementation(() => party);
+      });
+
+      describe('and there are other players in the party', () => {
+        let anotherPlayer: Player;
+
+        beforeEach(() => {
+          anotherPlayer = playerFactory({ partyId: party.id });
+          party.players = [context.player, anotherPlayer];
+          runListener(context, leaveParty, data);
+        });
+
+        it('broadcasts LeaveParty event with proper data', () => {
+          expect(context.eventManager.broadcast).toHaveBeenCalledWith({
+            label: EventLabels.LeaveParty,
+            to: party,
+            payload: {
+              player: expect.objectContaining({
+                id: context.player.id,
+                username: context.player.username,
+              }),
+              party: expect.objectContaining({
+                id: party.id,
+                players: [
+                  expect.objectContaining({
+                    id: anotherPlayer.id,
+                    username: anotherPlayer.username,
+                  }),
+                ],
+                owner: expect.objectContaining({
+                  id: anotherPlayer.id,
+                  username: anotherPlayer.username,
+                }),
+              }),
+            },
+          });
         });
       });
 
-      it('emits player-leave event to remaining players', async () => {
-        await disconnect(ioMock, socketMock, storageMock, {});
-        const expectedResponse = {
-          ownerId: partyMock.ownerId,
-          allPlayers: [player2Mock],
-          player: playerMock,
-        };
+      describe('and there are not other players in the party', () => {
+        beforeEach(() => {
+          party.players = [context.player];
+          runListener(context, leaveParty, data);
+        });
 
-        expect(partyMock.sendToAll).toHaveBeenCalledWith(
-          ioMock,
-          'player-leave',
-          expectedResponse
-        );
+        it('removes party', () => {
+          expect(context.storage.parties.remove).toHaveBeenCalledWith(party);
+        });
       });
     });
 
-    describe('and there are not other players in party', () => {
-      it('deletes party', async () => {
-        partyMock.playerIds = [playerMock.id];
-        jest
-          .spyOn(partyMock, 'players')
-          .mockImplementation(async () => [playerMock]);
-
-        await disconnect(ioMock, socketMock, storageMock, {});
-
-        expect(storageMock.remove).toHaveBeenCalledWith(
-          'parties',
-          partyMock.id
-        );
-      });
+    it('removes player from player storage', () => {
+      runListener(context, disconnect, data);
+      expect(context.storage.players.remove).toHaveBeenLastCalledWith(
+        context.player
+      );
     });
   });
 });

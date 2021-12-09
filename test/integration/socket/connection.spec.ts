@@ -1,6 +1,6 @@
 import inMemoryStorage from '~/socket/storage/inMemoryStorage';
 import { delay } from '~/utils';
-import { testWS } from '../../helpers';
+import { testWS } from '../../helpers/integration';
 
 describe('Connection', () => {
   describe('when a username is sended', () => {

@@ -17,12 +17,14 @@ const socketFactory = ({ id }: SocketParams = {}): Socket => {
     emit: jest.fn(),
     on: jest.fn(),
     join: jest.fn(),
+    leave: jest.fn(),
     broadcast: {
       to: jest.fn(() => broadcastFactory()),
     },
     handshake: {
       query: {},
     },
+    removeAllListeners: jest.fn(),
   };
 
   return socket as any;

@@ -1,53 +1,46 @@
 import { Server, Socket } from 'socket.io';
 import { mocked } from 'ts-jest/utils';
 import setupWebSockets from '~/socket';
-import setupPlayer from '~/socket/middlewares/setupPlayer';
-import { ISocketStorage } from '~/socket/storage/ISocketStorage';
+import { GameStorage } from '~/socket/GameStorage';
+import { nameValidation } from '~/socket/middlewares/nameValidation';
+import { ioFactory } from '~test/factories/io';
+import { storageFactory } from '~test/factories/storage';
 
-jest.mock('~/socket/middlewares/setupPlayer');
+jest.mock('~/socket/middlewares/nameValidation');
 
 describe('setupWebSockets', () => {
   let ioMock: Server;
-  let storageMock: ISocketStorage;
+  let storageMock: GameStorage;
 
   beforeEach(() => {
-    ioMock = <any>{
-      on: jest.fn(),
-      use: jest.fn(),
-    };
+    ioMock = ioFactory();
+    storageMock = storageFactory();
 
-    storageMock = <any>{
-      clearAll: jest.fn(),
-    };
-
-    mocked(setupPlayer).mockClear();
+    mocked(nameValidation).mockClear();
   });
 
-  it("calls SocketServer#on with 'connection'", () => {
-    setupWebSockets(ioMock, storageMock);
+  it("calls SocketServer#on with 'connection'", async () => {
+    await setupWebSockets(ioMock, storageMock);
     expect(ioMock.on).toHaveBeenCalledWith('connection', expect.any(Function));
   });
 
-  it('calls SocketServer#use with proper callback', () => {
+  it('calls SocketServer#use with proper callback', async () => {
     const socketMock = <Socket>{};
     const nextFunctionMock = jest.fn();
 
-    setupWebSockets(ioMock, storageMock);
+    await setupWebSockets(ioMock, storageMock);
     expect(ioMock.use).toHaveBeenCalledWith(expect.any(Function));
 
     const callback = mocked(ioMock.use).mock.calls[0][0];
     callback(socketMock, nextFunctionMock);
 
-    expect(setupPlayer).toHaveBeenCalledWith(
-      ioMock,
-      socketMock,
-      expect.anything(),
+    expect(nameValidation).toHaveBeenCalledWith(
+      expect.objectContaining({
+        io: ioMock,
+        socket: socketMock,
+        storage: storageMock,
+      }),
       nextFunctionMock
     );
-  });
-
-  it('calls ISocketStorage#clearAll function', () => {
-    setupWebSockets(ioMock, storageMock);
-    expect(storageMock.clearAll).toHaveBeenCalled();
   });
 });

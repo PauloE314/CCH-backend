@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
-import { GameStorage } from '~/socket/storage';
+import { GameStorage } from '~/socket/GameStorage';
 import { nameValidation } from '~/socket/middlewares/nameValidation';
-import { ErrorCodes } from '~/socket/Events';
+import { ErrorCodes } from '~/socket/EventManager';
 import { ioFactory } from '~/../test/factories/io';
 import { socketFactory } from '~/../test/factories/socket';
 import { storageFactory } from '~/../test/factories/storage';
@@ -9,14 +9,14 @@ import { storageFactory } from '~/../test/factories/storage';
 describe('nameValidation', () => {
   let nextFunctionMock: jest.Mock;
 
-  let contextMock: {
+  let midContext: {
     io: Server;
     socket: Socket;
     storage: GameStorage;
   };
 
   beforeEach(() => {
-    contextMock = {
+    midContext = {
       io: ioFactory(),
       socket: socketFactory(),
       storage: storageFactory(),
@@ -27,16 +27,16 @@ describe('nameValidation', () => {
 
   describe('when is passed a username', () => {
     it("calls 'next' without error", () => {
-      contextMock.socket.handshake.query.username = 'Player 1';
-      nameValidation(contextMock, nextFunctionMock);
+      midContext.socket.handshake.query.username = 'Player 1';
+      nameValidation(midContext, nextFunctionMock);
       expect(nextFunctionMock).toHaveBeenCalledWith();
     });
   });
 
   describe('when is not passed a username', () => {
     it("calls 'next' with an invalidData error", async () => {
-      contextMock.socket.handshake.query.username = undefined;
-      nameValidation(contextMock, nextFunctionMock);
+      midContext.socket.handshake.query.username = undefined;
+      nameValidation(midContext, nextFunctionMock);
       expect(nextFunctionMock).toHaveBeenCalledWith(expect.any(Error));
 
       const { message } = nextFunctionMock.mock.calls[0][0];

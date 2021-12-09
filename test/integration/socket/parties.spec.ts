@@ -1,6 +1,6 @@
 import Party from '~/socket/models/Party';
 import inMemoryStorage from '~/socket/storage/inMemoryStorage';
-import { act, testWSClient } from '../../helpers';
+import { act, testWSClient } from '../../helpers/integration';
 
 describe('Parties', () => {
   describe('Create new party', () => {

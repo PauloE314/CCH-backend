@@ -1,6 +1,6 @@
 import { Middleware } from '.';
-import { ErrorCodes } from '../Events';
-import { getUsername } from '../helpers/socket';
+import { ErrorCodes } from '../EventManager';
+import { getUsername } from '../helpers';
 
 const nameValidation: Middleware = ({ socket }, next) => {
   const username = getUsername(socket);

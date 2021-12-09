@@ -2,13 +2,12 @@ import { Listener } from './listeners';
 import { GameContext } from './GameContext';
 
 enum EventLabels {
-  NewParty = 'new-party',
+  CreateParty = 'create-party',
   JoinParty = 'join-party',
   Disconnect = 'disconnect',
   ChatMessage = 'chat-message',
-  PlayerLeave = 'player-leave',
+  LeaveParty = 'leave-party',
   PlayerJoin = 'player-join',
-  PartyId = 'party-id',
   Error = 'error',
 }
 
@@ -20,9 +19,12 @@ enum ErrorCodes {
   PartyTooLarge = 5,
 }
 
+type EmitDestiny = { id: string } | string;
+
 type Event = {
   label: EventLabels;
   payload?: any;
+  to?: EmitDestiny;
 };
 
 class EventManager {
@@ -36,16 +38,24 @@ class EventManager {
     listeners.forEach(listener => listener(this.context));
   }
 
-  public unListen(...keys: string[]) {
+  public remove(...keys: EventLabels[]) {
     keys.forEach(key => this.context.socket.removeAllListeners(key));
   }
 
-  public emit(event: Event) {
-    this.context.socket.emit(event.label, event.payload);
+  public send({ label, payload, to }: Event) {
+    const destiny = typeof to === 'string' ? to : to?.id;
+
+    if (destiny) this.context.io.to(destiny).emit(label, payload);
+    else this.context.socket.emit(label, payload);
+  }
+
+  public broadcast(event: Event & { to: EmitDestiny }) {
+    const destiny = typeof event.to === 'string' ? event.to : event.to.id;
+    this.context.socket.broadcast.to(destiny).emit(event.label, event.payload);
   }
 
   public error(code: ErrorCodes) {
-    this.emit({ label: EventLabels.Error, payload: code });
+    this.send({ label: EventLabels.Error, payload: { code } });
   }
 }
 

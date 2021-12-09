@@ -17,7 +17,8 @@ class DataMap<T extends { id: string }> {
     return typeof data === 'string' ? this.values[data] : this.values[data.id];
   }
 
-  remove(id: string) {
+  remove(data: string | T) {
+    const id = typeof data === 'string' ? data : data.id;
     delete this.values[id];
   }
 

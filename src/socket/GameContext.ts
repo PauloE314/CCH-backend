@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
-import { EventManager } from './Events';
+import { EventManager } from './EventManager';
 import { Player } from './models/Player';
-import { GameStorage } from './storage';
+import { GameStorage } from './GameStorage';
 
 type GameContext = {
   io: Server;

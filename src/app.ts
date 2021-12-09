@@ -6,7 +6,7 @@ import 'reflect-metadata';
 
 import routes from './web/routes';
 import setupWebSockets from '~/socket';
-import { GameStorage } from '~/socket/storage';
+import { GameStorage } from '~/socket/GameStorage';
 
 export default class Application {
   express: Express;

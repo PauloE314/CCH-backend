@@ -1,11 +1,16 @@
+import { joinParty } from './joinParty';
+import { createParty } from './createParty';
 import { EventLabels } from '../EventManager';
 import { Listener, serializeParty, serializePlayer } from './index';
 
-const disconnect: Listener = ({ socket, player, storage, eventManager }) => {
-  socket.on(EventLabels.Disconnect, () => {
+const leaveParty: Listener = ({ socket, player, eventManager, storage }) => {
+  socket.on(EventLabels.LeaveParty, () => {
     const party = storage.parties.get(player.partyId);
 
     if (party) {
+      player.partyId = '';
+      socket.leave(party.id);
+
       party.players = party.players.filter(({ id }) => id !== player.id);
 
       if (party.players.length === 0) storage.parties.remove(party);
@@ -18,10 +23,11 @@ const disconnect: Listener = ({ socket, player, storage, eventManager }) => {
             party: serializeParty(party),
           },
         });
-    }
 
-    storage.players.remove(player);
+      eventManager.remove(EventLabels.ChatMessage, EventLabels.LeaveParty);
+      eventManager.listen(joinParty, createParty);
+    }
   });
 };
 
-export { disconnect };
+export { leaveParty };

@@ -52,11 +52,16 @@ interface ClientFactory {
     waitConnection: true;
   }): Promise<Socket>;
 }
+
+// interface SafeEnv {
+//   <T extends Function>(cb: T): T;
+// }
 interface WSTesterCBParams {
   io: Server;
   clientFactory: ClientFactory;
   done: (error?: any) => any;
   storage: GameStorage;
+  // safeEnv: SafeEnv;
 }
 
 type Tester = (
@@ -101,6 +106,14 @@ const WStester: Tester = (message, cb) => {
         httpServer.close();
         done(err);
       };
+
+      // const safeEnv: any = (unsafeCb: Function) => {
+      //   try {
+      //     unsafeCb();
+      //   } catch (error) {
+      //     end(error);
+      //   }
+      // };
 
       try {
         const res = cb({ io, clientFactory, done: end, storage });

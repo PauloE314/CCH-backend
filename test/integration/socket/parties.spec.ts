@@ -1,22 +1,9 @@
+import { Socket } from 'socket.io-client';
 import { EventLabels } from '~/socket/EventManager';
 import { Party } from '~/socket/models/Party';
-import { delay } from '~/utils';
 import { act, testWS } from '../../helpers/integration';
 
 describe('Parties', () => {
-  // it('foo', done => {
-  //   const cb = () => {
-  //     try {
-  //       expect(typeof undefined).toBe('string');
-  //       done();
-  //     } catch (error) {
-  //       done(error);
-  //     }
-  //   };
-
-  //   delay(100).then(cb);
-  // });
-
   describe('Create new party', () => {
     testWS('stores party and sends its id', data => {
       const { clientFactory, storage, done } = data;
@@ -24,9 +11,9 @@ describe('Parties', () => {
         username: 'Player',
       });
 
-      client.on(EventLabels.CreateParty, partyId => {
+      client.on(EventLabels.CreateParty, ({ partyId }) => {
         try {
-          expect(typeof undefined).toBe('string');
+          expect(typeof partyId).toBe('string');
           expect(storage.parties.get(partyId)).toBeInstanceOf(Party);
           done();
         } catch (error) {
@@ -39,28 +26,75 @@ describe('Parties', () => {
   });
 
   describe('Join party', () => {
-    testWS('joins party and sends its id', async ({ clientFactory, done }) => {
-      const client = clientFactory({ username: 'Player' });
+    testWS(
+      'Sends incoming player data to other players',
+      async ({ clientFactory, done }) => {
+        const client = clientFactory({ username: 'Player' });
+        const incoming = clientFactory({ username: 'Incoming' });
 
-      client.on(EventLabels.JoinParty, data => {
-        expect(data).toEqual({
-          ownerId: expect.any(String),
-          allPlayers: expect.arrayContaining([
-            expect.objectContaining({ username: 'Player' }),
-            expect.objectContaining({ username: 'Incoming' }),
-          ]),
-          player: expect.objectContaining({ username: 'Incoming' }),
+        client.on(EventLabels.PlayerJoin, data => {
+          try {
+            expect(data).toEqual(
+              expect.objectContaining({
+                id: incoming.id,
+                username: 'Incoming',
+              })
+            );
+            done();
+          } catch (error) {
+            done(error);
+          }
         });
 
-        done();
+        client.on(EventLabels.CreateParty, ({ partyId }) => {
+          incoming.emit(EventLabels.JoinParty, { partyId });
+        });
+
+        await act(() => client.emit(EventLabels.CreateParty), 50);
+      }
+    );
+  });
+
+  testWS(
+    'Sends room data to incoming player',
+    async ({ clientFactory, done }) => {
+      console.log('data');
+
+      const client = clientFactory({ username: 'Player' });
+      const incoming = clientFactory({ username: 'Incoming' });
+
+      incoming.on(EventLabels.JoinParty, data => {
+        try {
+          expect(data).toEqual(
+            expect.objectContaining({
+              id: expect.any(String),
+              players: expect.arrayContaining([
+                expect.objectContaining({
+                  id: client.id,
+                  username: 'Player',
+                }),
+                expect.objectContaining({
+                  id: incoming.id,
+                  username: 'Incoming',
+                }),
+              ]),
+              owner: expect.objectContaining({
+                id: client.id,
+                username: 'Player',
+              }),
+            })
+          );
+          done();
+        } catch (error) {
+          done(error);
+        }
       });
 
-      client.on(EventLabels.CreateParty, partyId => {
-        const incoming = clientFactory({ username: 'Incoming' });
+      client.on(EventLabels.CreateParty, ({ partyId }) => {
         incoming.emit(EventLabels.JoinParty, { partyId });
       });
 
-      await act(() => client.emit(EventLabels.CreateParty), 150);
-    });
-  });
+      await act(() => client.emit(EventLabels.CreateParty), 50);
+    }
+  );
 });

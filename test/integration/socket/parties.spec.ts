@@ -1,4 +1,3 @@
-import { Socket } from 'socket.io-client';
 import { EventLabels } from '~/socket/EventManager';
 import { Party } from '~/socket/models/Party';
 import { act, testWS } from '../../helpers/integration';

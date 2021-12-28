@@ -160,4 +160,13 @@ export async function act(cb: () => any, time = 50) {
   }
 }
 
-export { startWebSocketsTestServer, testWS, defaultClientParams };
+export const getNthParty = (storage: GameStorage, index: number = 0) => {
+  return Object.values(storage.parties.all())[index];
+};
+
+export {
+  startWebSocketsTestServer,
+  testWS,
+  defaultClientParams,
+  ClientFactory,
+};

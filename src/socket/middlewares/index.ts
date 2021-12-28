@@ -1,5 +1,5 @@
 import { Server, Socket } from 'socket.io';
-import { GameStorage } from '../storage';
+import { GameStorage } from '../GameStorage';
 
 type MiddlewareContext = {
   io: Server;

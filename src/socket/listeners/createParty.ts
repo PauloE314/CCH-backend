@@ -10,6 +10,7 @@ const createParty: Listener = ({ player, socket, storage, eventManager }) => {
     party.players.push(player);
     storage.parties.store(party);
 
+    player.partyId = party.id;
     socket.join(party.id);
     eventManager.send({
       label: EventLabels.CreateParty,

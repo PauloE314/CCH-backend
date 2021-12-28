@@ -22,8 +22,10 @@ class Party {
     this.readyRelation[player.id] = false;
   }
 
-  setReady(player: Player) {
-    this.readyRelation[player.id] = true;
+  toggleReady(player: Player) {
+    this.readyRelation[player.id] = !this.readyRelation[player.id];
+
+    return this.readyRelation[player.id];
   }
 
   public allReady() {

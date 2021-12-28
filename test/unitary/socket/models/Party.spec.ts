@@ -18,17 +18,27 @@ describe('Party', () => {
   describe('when player are not ready', () => {
     it('allReady returns false', () => {
       expect(party.allReady()).toBeFalsy();
-      party.setReady(players[0]);
+      party.toggleReady(players[0]);
       expect(party.allReady()).toBeFalsy();
     });
   });
 
   describe('when player are ready', () => {
     it('allReady returns true', () => {
-      party.setReady(players[0]);
-      party.setReady(players[1]);
-      party.setReady(players[2]);
+      party.toggleReady(players[0]);
+      party.toggleReady(players[1]);
+      party.toggleReady(players[2]);
       expect(party.allReady()).toBeTruthy();
+    });
+  });
+
+  describe('when player is ready', () => {
+    it('toggleReady turns to false', () => {
+      party.toggleReady(players[0]);
+      party.toggleReady(players[1]);
+      party.toggleReady(players[2]);
+      party.toggleReady(players[0]);
+      expect(party.allReady()).toBeFalsy();
     });
   });
 });

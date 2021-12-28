@@ -1,7 +1,7 @@
 import { joinParty } from './joinParty';
 import { createParty } from './createParty';
-import { EventLabels } from '../EventManager';
-import { Listener, serializeParty, serializePlayer } from './index';
+import { EventLabels } from '../../EventManager';
+import { Listener, serializeParty, serializePlayer } from '../index';
 
 const leaveParty: Listener = ({ socket, player, eventManager, storage }) => {
   socket.on(EventLabels.LeaveParty, () => {

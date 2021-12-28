@@ -3,14 +3,13 @@ import { gameContextFactory } from '~/../test/factories/gameContext';
 import { Party } from '~/socket/models/Party';
 import { ErrorCodes, EventLabels } from '~/socket/EventManager';
 import { GameContext } from '~/socket/GameContext';
-import { joinParty } from '~/socket/listeners/joinParty';
+import { joinParty } from '~/socket/listeners/party/joinParty';
 import { partyFactory } from '~test/factories/party';
 import { runListener } from '~test/helpers/unit';
-import { leaveParty } from '~/socket/listeners/leaveParty';
-import { chatMessage } from '~/socket/listeners/chatMessage';
+import { leaveParty } from '~/socket/listeners/party/leaveParty';
 import { Player } from '~/socket/models/Player';
 import { playerFactory } from '~test/factories/player';
-import { createParty } from '~/socket/listeners/createParty';
+import { createParty } from '~/socket/listeners/party/createParty';
 
 describe('leaveParty', () => {
   let context: GameContext;

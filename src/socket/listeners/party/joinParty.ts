@@ -1,6 +1,6 @@
-import { chatMessage } from './chatMessage';
-import { ErrorCodes, EventLabels } from '../EventManager';
-import { Listener, serializeParty } from './index';
+import { chatMessage } from '../chatMessage';
+import { ErrorCodes, EventLabels } from '../../EventManager';
+import { Listener, serializeParty } from '../index';
 import { leaveParty } from './leaveParty';
 
 const joinParty: Listener = ({ player, socket, storage, eventManager }) => {

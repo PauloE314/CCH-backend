@@ -7,8 +7,8 @@ import { getUsername } from './helpers';
 import { disconnect } from './listeners/disconnect';
 import { EventManager } from './EventManager';
 import { nameValidation } from './middlewares/nameValidation';
-import { createParty } from './listeners/createParty';
-import { joinParty } from './listeners/joinParty';
+import { createParty } from './listeners/party/createParty';
+import { joinParty } from './listeners/party/joinParty';
 
 export default async function setupWebSockets(
   io: SocketServer,

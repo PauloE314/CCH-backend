@@ -3,8 +3,8 @@ import { gameContextFactory } from '~/../test/factories/gameContext';
 import { Party } from '~/socket/models/Party';
 import { EventLabels } from '~/socket/EventManager';
 import { GameContext } from '~/socket/GameContext';
-import { createParty } from '~/socket/listeners/createParty';
-import { leaveParty } from '~/socket/listeners/leaveParty';
+import { createParty } from '~/socket/listeners/party/createParty';
+import { leaveParty } from '~/socket/listeners/party/leaveParty';
 import { chatMessage } from '~/socket/listeners/chatMessage';
 
 describe('createParty', () => {

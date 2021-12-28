@@ -3,6 +3,7 @@ import { GameContext } from './GameContext';
 
 enum EventLabels {
   CreateParty = 'create-party',
+  Ready = 'ready',
   JoinParty = 'join-party',
   Disconnect = 'disconnect',
   ChatMessage = 'chat-message',

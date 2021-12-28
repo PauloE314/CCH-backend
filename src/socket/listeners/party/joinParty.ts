@@ -2,6 +2,7 @@ import { chatMessage } from '../chatMessage';
 import { ErrorCodes, EventLabels } from '../../EventManager';
 import { Listener, serializeParty } from '../index';
 import { leaveParty } from './leaveParty';
+import { ready } from '../game/ready';
 
 const joinParty: Listener = ({ player, socket, storage, eventManager }) => {
   socket.on(EventLabels.JoinParty, ({ partyId }) => {
@@ -11,8 +12,7 @@ const joinParty: Listener = ({ player, socket, storage, eventManager }) => {
       return eventManager.error(ErrorCodes.inexistentParty);
     }
 
-    player.partyId = party.id;
-    party.players.push(player);
+    party.join(player);
     socket.join(party.id);
 
     eventManager.broadcast({
@@ -27,7 +27,7 @@ const joinParty: Listener = ({ player, socket, storage, eventManager }) => {
     });
 
     eventManager.remove(EventLabels.CreateParty, EventLabels.JoinParty);
-    eventManager.listen(leaveParty, chatMessage);
+    eventManager.listen(leaveParty, chatMessage, ready);
   });
 };
 

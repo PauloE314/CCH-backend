@@ -24,7 +24,11 @@ const leaveParty: Listener = ({ socket, player, eventManager, storage }) => {
           },
         });
 
-      eventManager.remove(EventLabels.ChatMessage, EventLabels.LeaveParty);
+      eventManager.remove(
+        EventLabels.ChatMessage,
+        EventLabels.LeaveParty,
+        EventLabels.Ready
+      );
       eventManager.listen(joinParty, createParty);
     }
   });

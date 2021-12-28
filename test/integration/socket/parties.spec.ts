@@ -172,4 +172,49 @@ describe('Parties', () => {
       }
     );
   });
+
+  describe('Disconnect', () => {
+    testWS(
+      'Sends message to other clients',
+      async ({ clientFactory, storage, done }) => {
+        const clients = [
+          clientFactory({ username: 'Player1' }),
+          clientFactory({ username: 'Player2' }),
+          clientFactory({ username: 'Player3' }),
+        ];
+        let assertCount = 0;
+        let partyId: string;
+
+        const check = (data: any) => {
+          try {
+            expect(data).toEqual({
+              player: { id: expect.any(String), username: 'Player1' },
+              party: {
+                id: partyId,
+                players: [expect.any(Object), expect.any(Object)],
+                owner: { id: clients[1].id, username: 'Player2' },
+              },
+            });
+            assertCount++;
+            if (assertCount === 2) done();
+          } catch (error) {
+            done(error);
+          }
+        };
+
+        clients[0].emit(EventLabels.CreateParty);
+        await delay(200);
+
+        partyId = getNthParty(storage).id;
+        clients[1].emit(EventLabels.JoinParty, { partyId });
+        clients[2].emit(EventLabels.JoinParty, { partyId });
+        await delay(50);
+
+        clients[1].on(EventLabels.LeaveParty, check);
+        clients[2].on(EventLabels.LeaveParty, check);
+
+        clients[0].disconnect();
+      }
+    );
+  });
 });

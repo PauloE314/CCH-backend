@@ -152,9 +152,17 @@ describe('Parties', () => {
         let assertCount = 0;
 
         const check = (data: any) => {
-          expect(data).toEqual({ message: 'Hello' });
-          assertCount++;
-          if (assertCount === 2) done();
+          try {
+            expect(data).toEqual({
+              message: 'Hello',
+              player: { id: clients[0].id, username: 'Player1' },
+            });
+
+            assertCount++;
+            if (assertCount === 2) done();
+          } catch (error) {
+            done(error);
+          }
         };
 
         clients[0].emit(EventLabels.CreateParty);

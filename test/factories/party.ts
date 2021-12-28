@@ -11,6 +11,9 @@ const partyFactory = ({ id, players }: PartyFactoryParams = {}): Party => {
   party.id = id || party.id;
   party.players = players || [];
 
+  party.toggleReady = jest.fn();
+  party.allReady = jest.fn();
+
   return party;
 };
 

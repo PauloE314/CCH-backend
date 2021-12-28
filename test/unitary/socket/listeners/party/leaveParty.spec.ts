@@ -100,11 +100,12 @@ describe('leaveParty', () => {
       expect(party.players).not.toContain(context.player);
     });
 
-    it('removes ChatMessage and LeaveParty events', () => {
+    it('removes ChatMessage, LeaveParty and Ready events', () => {
       runListener(context, leaveParty, data);
       expect(context.eventManager.remove).toHaveBeenCalledWith(
         EventLabels.ChatMessage,
-        EventLabels.LeaveParty
+        EventLabels.LeaveParty,
+        EventLabels.Ready
       );
     });
 

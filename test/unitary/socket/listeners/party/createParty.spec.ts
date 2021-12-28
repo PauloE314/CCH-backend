@@ -6,6 +6,7 @@ import { GameContext } from '~/socket/GameContext';
 import { createParty } from '~/socket/listeners/party/createParty';
 import { leaveParty } from '~/socket/listeners/party/leaveParty';
 import { chatMessage } from '~/socket/listeners/chatMessage';
+import { ready } from '~/socket/listeners/game/ready';
 
 describe('createParty', () => {
   let context: GameContext;
@@ -65,7 +66,8 @@ describe('createParty', () => {
     it('adds LeaveParty and ChatMessage events', () => {
       expect(context.eventManager.listen).toHaveBeenCalledWith(
         leaveParty,
-        chatMessage
+        chatMessage,
+        ready
       );
     });
   });

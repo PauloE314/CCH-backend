@@ -8,6 +8,8 @@ import { partyFactory } from '~test/factories/party';
 import { runListener } from '~test/helpers/unit';
 import { leaveParty } from '~/socket/listeners/party/leaveParty';
 import { chatMessage } from '~/socket/listeners/chatMessage';
+import { gameSettings } from '~/config/settings';
+import { ready } from '~/socket/listeners/game/ready';
 
 describe('joinParty', () => {
   let context: GameContext;
@@ -28,65 +30,89 @@ describe('joinParty', () => {
 
   describe('when JoinParty is called', () => {
     describe('and the party exists', () => {
-      let party: Party;
+      describe('and the party is full', () => {
+        let party: Party;
 
-      beforeEach(() => {
-        party = partyFactory({ id: data.partyId });
-        mocked(context.storage.parties.get).mockImplementation(() => party);
+        beforeEach(() => {
+          party = partyFactory({ id: data.partyId });
 
-        runListener(context, joinParty, data);
-      });
+          for (let i = 0; i <= gameSettings.maxPlayerAmount; i++)
+            party.players.push({} as any);
 
-      it('sets Player#partyId to the correct value', () => {
-        expect(context.player.partyId).toBe(party.id);
-      });
+          mocked(context.storage.parties.get).mockImplementation(() => party);
+          runListener(context, joinParty, data);
+        });
 
-      it('stores Player in Party#players property', () => {
-        expect(party.players).toEqual([context.player]);
-      });
-
-      it('joins socket to party room', () => {
-        expect(context.socket.join).toHaveBeenCalledWith(party.id);
-      });
-
-      it('sends JoinParty event', () => {
-        expect(context.eventManager.send).toHaveBeenCalledWith({
-          label: EventLabels.JoinParty,
-          payload: expect.objectContaining({
-            id: party.id,
-            players: [expect.objectContaining({ id: context.player.id })],
-          }),
+        it('sends proper error message', () => {
+          expect(context.eventManager.send).toHaveBeenCalledWith({
+            label: 'error',
+            payload: { code: ErrorCodes.PartyTooLarge },
+          });
         });
       });
 
-      it('broadcasts PlayerJoin event', () => {
-        const playerExpectation = expect.objectContaining({
-          id: context.player.id,
-          username: context.player.username,
+      describe('and the party is not full', () => {
+        let party: Party;
+
+        beforeEach(() => {
+          party = partyFactory({ id: data.partyId });
+          mocked(context.storage.parties.get).mockImplementation(() => party);
+
+          runListener(context, joinParty, data);
         });
 
-        expect(context.eventManager.broadcast).toHaveBeenCalledWith({
-          label: EventLabels.PlayerJoin,
-          payload: playerExpectation,
-          to: expect.objectContaining({
-            id: party.id,
-            players: [playerExpectation],
-          }),
+        it('sets Player#partyId to the correct value', () => {
+          expect(context.player.partyId).toBe(party.id);
         });
-      });
 
-      it('removes CreateParty and JoinParty events', () => {
-        expect(context.eventManager.remove).toHaveBeenCalledWith(
-          EventLabels.CreateParty,
-          EventLabels.JoinParty
-        );
-      });
+        it('stores Player in Party#players property', () => {
+          expect(party.players).toEqual([context.player]);
+        });
 
-      it('adds LeaveParty and ChatMessage events', () => {
-        expect(context.eventManager.listen).toHaveBeenCalledWith(
-          leaveParty,
-          chatMessage
-        );
+        it('joins socket to party room', () => {
+          expect(context.socket.join).toHaveBeenCalledWith(party.id);
+        });
+
+        it('sends JoinParty event', () => {
+          expect(context.eventManager.send).toHaveBeenCalledWith({
+            label: EventLabels.JoinParty,
+            payload: expect.objectContaining({
+              id: party.id,
+              players: [expect.objectContaining({ id: context.player.id })],
+            }),
+          });
+        });
+
+        it('broadcasts PlayerJoin event', () => {
+          const playerExpectation = expect.objectContaining({
+            id: context.player.id,
+            username: context.player.username,
+          });
+
+          expect(context.eventManager.broadcast).toHaveBeenCalledWith({
+            label: EventLabels.PlayerJoin,
+            payload: playerExpectation,
+            to: expect.objectContaining({
+              id: party.id,
+              players: [playerExpectation],
+            }),
+          });
+        });
+
+        it('removes CreateParty and JoinParty events', () => {
+          expect(context.eventManager.remove).toHaveBeenCalledWith(
+            EventLabels.CreateParty,
+            EventLabels.JoinParty
+          );
+        });
+
+        it('adds LeaveParty and ChatMessage events', () => {
+          expect(context.eventManager.listen).toHaveBeenCalledWith(
+            leaveParty,
+            chatMessage,
+            ready
+          );
+        });
       });
     });
 

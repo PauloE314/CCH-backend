@@ -28,9 +28,17 @@ describe('chatMessage', () => {
     });
 
     it('broadcasts ChatMessage event', () => {
+      const player = {
+        id: context.player.id,
+        username: context.player.username,
+      };
+
       expect(context.eventManager.broadcast).toHaveBeenLastCalledWith({
         label: EventLabels.ChatMessage,
-        payload: { message: data.message },
+        payload: {
+          player,
+          message: data.message,
+        },
         to: context.player.partyId,
       });
     });
